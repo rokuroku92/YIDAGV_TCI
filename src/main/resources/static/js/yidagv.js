@@ -156,9 +156,9 @@ function getNotification() {
 
 var alarmToggle = true;
 function getIAlarm() {
-    if (Notification.permission !== 'granted') {
-        Notification.requestPermission();
-    }
+    // if (Notification.permission !== 'granted') {
+    //     Notification.requestPermission();
+    // }
     var xhr = new XMLHttpRequest();
     xhr.open('GET', baseUrl + "/api/homepage/iAlarm", true);
     xhr.send();
@@ -205,6 +205,8 @@ function updateAgvStatus(data){  // 更新資料
         if(data[i].battery === 0 && data[i].signal === 0){
             document.getElementById("agvOnlineStatus").style.display = "none";
             document.getElementById("agvOfflineStatus").style.display = "block";
+
+            demoPlace();
         }else{
             document.getElementById("agvOfflineStatus").style.display = "none";
             document.getElementById("agvOnlineStatus").style.display = "block";
@@ -221,12 +223,110 @@ function updateAgvStatus(data){  // 更新資料
             document.getElementById("place").value = data[i].place;  // 目前位置
             document.getElementById("battery").value = data[i].battery+"%";  // 目前電壓
             document.getElementById("signal").value = data[i].signal+"%";  // 信號強度
+
+            // 更新位置
+            updateAGVPositions(data[i].place);
+
         }
         // 放車子
         // document.getElementById("agv_car").innerHTML = '<img src="'+baseUrl+'/image/icon_mp.png" width="50" ' +
         //                                                'style="position: absolute;left: ' + data.place.coordinate[0] + 'px;top: ' + data.place.coordinate[1] + 'px;z-index: 10" />';
     }
 }
+
+var tag = 1001;
+var tagF = true;
+function demoPlace(){
+    if(tagF){
+        if(tag<1054){
+            tag = tag + 1;
+        } else {
+            tagF = false;
+        }
+    } else {
+        if(tag>1001){
+            tag = tag - 1;
+        } else {
+            tagF = true;
+        }
+    }
+    
+    updateAGVPositions(String(tag));
+}
+
+const mapTagPositions = {
+    "1001": [92.5, 50],
+    "1002": [91.5, 50],
+    "1003": [92.5, 48],
+    "1004": [91.5, 48],
+    "1005": [92.5, 46],
+    "1006": [91.5, 46],
+    "1007": [92.5, 44],
+    "1008": [91.5, 44],
+    "1009": [92.5, 42],
+    "1010": [91.5, 42],
+    "1011": [92.5, 40],
+    "1012": [91.5, 40],
+
+    "1013": [91.5, 37],
+    "1014": [90, 34],
+    "1015": [85, 34],
+    "1016": [80, 34],
+    "1017": [76, 34],
+
+    "1018": [70, 25],
+    "1019": [67, 25],
+    "1020": [64, 25],
+    "1021": [60, 25],
+    "1022": [57, 25],
+    "1023": [53, 25],
+    "1024": [50, 25],
+    "1025": [47, 25],
+    "1026": [43, 25],
+    "1027": [40, 25],
+    
+    "1028": [38, 20],
+    "1029": [38, 12],
+
+    "1030": [36, 6],
+    "1031": [33, 6],
+    "1032": [29, 6],
+    "1033": [26, 6],
+    "1034": [22, 6],
+    "1035": [19, 6],
+    "1036": [16, 6],
+    "1037": [13, 6],
+    "1038": [9, 6],
+    "1039": [6, 6],
+
+    "1040": [4.3, 10],
+    "1041": [4.3, 23],
+    "1042": [4.3, 37],
+    "1043": [4.3, 50],
+
+    "1044": [5, 65],
+    "1045": [6, 65],
+    "1046": [5, 67],
+    "1047": [6, 67],
+    "1048": [5, 69],
+    "1049": [6, 69],
+    "1050": [5, 71],
+    "1051": [6, 71],
+    "1052": [5, 73],
+    "1053": [6, 73],
+    "1054": [5, 76],
+
+}
+
+function updateAGVPositions(tag) {
+    var map = document.getElementById("map");
+    var mapWidth = map.clientWidth;
+    var mapHeight = map.clientHeight;
+    var place = mapTagPositions[tag];
+
+    document.getElementById("agv_car").style.transform = "translate(" + ((place[0]/100) * mapWidth) +"px, " + ((place[1]/100) * mapHeight) + "px)";
+}
+
 
 function updateTasks(data){
     if(lastTasks != data){

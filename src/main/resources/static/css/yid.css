@@ -144,8 +144,8 @@ body{
 }
 .agv {
     position: absolute;
-    width: 50px; /* 使用vw（視窗寬度的百分比）來定義寬度 */
-    transition: transform 0.3s ease;
+    /* width: 10px; */
+    transition: transform 3s ease;
 }
 .red{
     color: #FF0000!important;

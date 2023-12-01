@@ -64,7 +64,7 @@ public class ProcessTasks {
     @Scheduled(fixedRate = 5000)
     public void dispatchTasks() {
         if(isRetrying || InstantStatus.iTask)return;
-        if(agvManager.getAgvStatus(1).getStatus() != 2) return;  // AGV未連線則無法派遣 TODO: 改成2，原4
+        if(agvManager.getAgvStatus(1).getStatus() != 2) return;  // AGV未連線則無法派遣
 
         if (InstantStatus.getAgvLowBattery()[0] && !taskQueue.iEqualsStandbyStation()){
             InstantStatus.iStandbyTask = true;
@@ -109,7 +109,7 @@ public class ProcessTasks {
 
                     System.out.println("URL: " + url);
 
-                    // TODO: 看有沒有需要分成不一樣站點數的網址
+                    // 看有沒有需要分成不一樣站點數的網址
 
                     HttpClient httpClient = HttpClient.newHttpClient();
                     HttpRequest request = HttpRequest.newBuilder()

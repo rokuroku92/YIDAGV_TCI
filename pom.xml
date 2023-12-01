@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.yid</groupId>
 	<artifactId>agv</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>agv</name>
 	<description>TCI agv project with Spring Boot</description>
 	<properties>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
-            <version>RELEASE</version>
+            <version>24.0.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

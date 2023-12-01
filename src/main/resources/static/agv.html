@@ -3,7 +3,7 @@
     <head>
         <title>元創智動系統</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <base id="Base">
+        <!-- <base id="Base"> -->
         <script>
             var baseUrl;
             if (window.location.href.startsWith('http://127.0.0.1:5500')) {
@@ -12,17 +12,18 @@
                 baseUrl = "http://localhost:8080/YIDAGV";
                 var baseHref = document.createElement("base");
                 // var baseHref = document.getElementById("Base");
-                baseHref.href = "http://127.0.0.1:5500/static/";
+                // baseHref.href = "http://127.0.0.1:5500/static/";
+                baseHref.href = "http://127.0.0.1:5500/";
                 document.head.appendChild(baseHref);
 
                 document.addEventListener("DOMContentLoaded", function() {
-					var _a_ = document.querySelectorAll("a");
-					_a_.forEach(a => {
-						var parts = a.href.split("/");
-						var newHref = parts[parts.length-1] !== "" ? parts[parts.length-1]+".html" : "agv.html";
-						a.href = newHref;
-					});
-				});
+                    var _a_ = document.querySelectorAll("a");
+                    _a_.forEach(a => {
+                        var parts = a.href.split("/");
+                        var newHref = parts[parts.length-1] !== "" ? parts[parts.length-1]+".html" : "agv.html";
+                        a.href = newHref;
+                    });
+                });
             } else {
                 // Spring Boot 环境 window.location.href.startsWith('http://localhost:8080/YIDAGV')
                 console.log('Running on Spring Boot');
@@ -89,12 +90,13 @@
                     <div class="row" id="omap" style="padding: 5px; padding-top: 10px">
                         <div class="col card">
                             <div class="mapdiv">
-            <!--                    <img src="image/map.png}" class="img-fluid map" alt="image error">-->
-                                <svg xmlns="http://www.w3.org/2000/svg" class="map" viewBox="0 0 748 113">
-                                    <defs><style>.a{fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:4px;}</style></defs>
-                                    <polyline class="a" points="2 60 2 2 163 2 163 23 341 23 341 31 427 31 427 111 746 111 746 20"/>
-                                </svg>
+                                <!--                    <img src="image/map.png}" class="img-fluid map" alt="image error">-->
                                 <img id="agv_car" class="agv" src="image/icon_mp.png"/>
+                                <img src="image/tci_map.svg" alt="SVG Image" class="img-fluid map" id="map">
+                                <!-- <svg xmlns="http://www.w3.org/2000/svg" class="map" id="map" viewBox="0 0 748 113">
+                                    <defs><style>.a{fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:4px;}</style></defs>
+                                    <polyline class="a" points="2 103 2 2 163 2 163 23 341 23 341 31 427 31 427 111 746 111 746 20"/>
+                                </svg> -->
                             </div>
                         </div>
                     </div>

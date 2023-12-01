@@ -97,12 +97,11 @@ public class InstantStatus {
     @Scheduled(fixedRate = 1000) // 每秒執行
     public void updateAgvStatuses() {
         // 抓取AGV狀態，並更新到agvStatuses
-//        String[] agvStatusData = testFakeData.crawlAGVStatus().orElse(new String[0]); // TODO: Fake data
         String[] agvStatusData = crawlAGVStatus().orElse(new String[0]);
         for (int i = 0; i < agvManager.getAgvLength() && agvStatusData.length != 0; i++) {
             AgvStatus agvStatus = agvManager.getAgvStatus(i+1);
             String[] data = agvStatusData[i].split(",");
-            NotificationDao.Title agvTitle = NotificationDao.Title.AGV_1; // TODO: 目前只有一台車
+            NotificationDao.Title agvTitle = NotificationDao.Title.AGV_1; // 目前只有一台車
 
             updateAGVBasicStatus(agvStatus, data, agvTitle, i);
             updateTaskStatus(data[1].trim());
@@ -189,9 +188,9 @@ public class InstantStatus {
             lastAgvStatusData[i] = data[5].trim();
         }
 
-        if(tagError[i]) {  // TODO: 卡號錯誤
+        if(tagError[i]) {  // 卡號錯誤
             handleTagError(parseAGVStatus(Integer.parseInt(data[4].trim())), agvStatus, i);
-        } else if(agvStatus.getStatus() == 2) { // TODO: 改為2，原4
+        } else if(agvStatus.getStatus() == 2) { // ONLINE
             time[i]=0;
             // data[4] 任務狀態
             boolean[] taskStatus = parseAGVStatus(Integer.parseInt(data[4].trim()));
@@ -416,8 +415,6 @@ public class InstantStatus {
     public void updateStationStatuses() {
         // 抓取Station狀態與Booking，並更新到stationStatuses
         StationStatus[] notBookedStationStatuses = new StationStatus[15];
-
-//        String[] callerValue= testFakeData.crawlStationStatus().orElse(new String[0]);  // TODO: Fake data
         String[] callerValue = crawlCallerStatus().orElse(new String[0]);
 
         if(callerValue.length != 15 && callerValue.length != 14) return;
@@ -434,63 +431,63 @@ public class InstantStatus {
                 if(!iCallerConn[i]){
                     iCallerConn[i] = true;
                     homePageService.setEquipmentIAlarm(i, 0);
-//                    switch (i){
-//                        case 0 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_1, NotificationDao.Status.ONLINE);
-//                        case 1 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_2, NotificationDao.Status.ONLINE);
-//                        case 2 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_3, NotificationDao.Status.ONLINE);
-//                        case 3 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_4, NotificationDao.Status.ONLINE);
-//                        case 4 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_5, NotificationDao.Status.ONLINE);
-//                        case 5 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_6, NotificationDao.Status.ONLINE);
-//                        case 6 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_7, NotificationDao.Status.ONLINE);
-//                        case 7 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_8, NotificationDao.Status.ONLINE);
-//                        case 8 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_9, NotificationDao.Status.ONLINE);
-//                        case 9 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_10, NotificationDao.Status.ONLINE);
-//                        case 10 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_11, NotificationDao.Status.ONLINE);
-//                        case 11 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_12, NotificationDao.Status.ONLINE);
-//                        case 12 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_13, NotificationDao.Status.ONLINE);
-//                        case 13 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_14, NotificationDao.Status.ONLINE);
-//                    }
+                    switch (i){
+                        case 0 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_1, NotificationDao.Status.ONLINE);
+                        case 1 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_2, NotificationDao.Status.ONLINE);
+                        case 2 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_3, NotificationDao.Status.ONLINE);
+                        case 3 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_4, NotificationDao.Status.ONLINE);
+                        case 4 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_5, NotificationDao.Status.ONLINE);
+                        case 5 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_6, NotificationDao.Status.ONLINE);
+                        case 6 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_7, NotificationDao.Status.ONLINE);
+                        case 7 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_8, NotificationDao.Status.ONLINE);
+                        case 8 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_9, NotificationDao.Status.ONLINE);
+                        case 9 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_10, NotificationDao.Status.ONLINE);
+                        case 10 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_11, NotificationDao.Status.ONLINE);
+                        case 11 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_12, NotificationDao.Status.ONLINE);
+                        case 12 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_13, NotificationDao.Status.ONLINE);
+                        case 13 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_14, NotificationDao.Status.ONLINE);
+                    }
                 }
                 callerOfflineSec[i] = 0;
             } else {
                 if(iCallerConn[i]){
                     iCallerConn[i] = false;
-//                    switch (i){
-//                        case 0 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_1, NotificationDao.Status.OFFLINE);
-//                        case 1 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_2, NotificationDao.Status.OFFLINE);
-//                        case 2 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_3, NotificationDao.Status.OFFLINE);
-//                        case 3 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_4, NotificationDao.Status.OFFLINE);
-//                        case 4 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_5, NotificationDao.Status.OFFLINE);
-//                        case 5 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_6, NotificationDao.Status.OFFLINE);
-//                        case 6 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_7, NotificationDao.Status.OFFLINE);
-//                        case 7 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_8, NotificationDao.Status.OFFLINE);
-//                        case 8 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_9, NotificationDao.Status.OFFLINE);
-//                        case 9 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_10, NotificationDao.Status.OFFLINE);
-//                        case 10 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_11, NotificationDao.Status.OFFLINE);
-//                        case 11 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_12, NotificationDao.Status.OFFLINE);
-//                        case 12 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_13, NotificationDao.Status.OFFLINE);
-//                        case 13 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_14, NotificationDao.Status.OFFLINE);
-//                    }
+                    switch (i){
+                        case 0 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_1, NotificationDao.Status.OFFLINE);
+                        case 1 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_2, NotificationDao.Status.OFFLINE);
+                        case 2 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_3, NotificationDao.Status.OFFLINE);
+                        case 3 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_4, NotificationDao.Status.OFFLINE);
+                        case 4 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_5, NotificationDao.Status.OFFLINE);
+                        case 5 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_6, NotificationDao.Status.OFFLINE);
+                        case 6 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_7, NotificationDao.Status.OFFLINE);
+                        case 7 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_8, NotificationDao.Status.OFFLINE);
+                        case 8 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_9, NotificationDao.Status.OFFLINE);
+                        case 9 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_10, NotificationDao.Status.OFFLINE);
+                        case 10 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_11, NotificationDao.Status.OFFLINE);
+                        case 11 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_12, NotificationDao.Status.OFFLINE);
+                        case 12 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_13, NotificationDao.Status.OFFLINE);
+                        case 13 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_14, NotificationDao.Status.OFFLINE);
+                    }
                 }
                 callerOfflineSec[i]++;
                 if(callerOfflineSec[i] == CALLER_OFFLINE_DURATION){
                     homePageService.setEquipmentIAlarm(i, 1);
-//                     switch (i){
-//                        case 0 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_1, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 1 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_2, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 2 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_3, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 3 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_4, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 4 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_5, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 5 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_6, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 6 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_7, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 7 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_8, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 8 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_9, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 9 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_10, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 10 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_11, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 11 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_12, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 12 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_13, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                        case 13 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_14, NotificationDao.Status.CALLER_LONG_OFFLINE);
-//                    }
+                     switch (i){
+                        case 0 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_1, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 1 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_2, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 2 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_3, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 3 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_4, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 4 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_5, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 5 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_6, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 6 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_7, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 7 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_8, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 8 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_9, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 9 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_10, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 10 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_11, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 11 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_12, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 12 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_13, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                        case 13 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_14, NotificationDao.Status.CALLER_LONG_OFFLINE);
+                    }
                 }
                 lastCaller[i] = -1;
             }
@@ -516,7 +513,7 @@ public class InstantStatus {
                 notBookedStationStatuses[callerIndex].setStatus(StationStatus.Status.DISABLE);
                 callerIndex++;
             }
-            System.out.println("6號叫車器失去連線"); // TODO: Insert database.
+            System.out.println("6號叫車器失去連線");
         }
 
         if(iCallerConn[6]) {
@@ -530,7 +527,7 @@ public class InstantStatus {
         } else {
             notBookedStationStatuses[callerIndex] = new StationStatus();
             notBookedStationStatuses[callerIndex].setStatus(StationStatus.Status.DISABLE);
-            System.out.println("7號叫車器失去連線"); // TODO: Insert database.
+            System.out.println("7號叫車器失去連線");
         }
         callerIndex++;
 
@@ -551,7 +548,7 @@ public class InstantStatus {
                 notBookedStationStatuses[callerIndex].setStatus(StationStatus.Status.DISABLE);
                 callerIndex++;
             }
-            System.out.println("13號叫車器失去連線"); // TODO: Insert database.
+            System.out.println("13號叫車器失去連線");
         }
         if(iCallerConn[13]) {
             dataValue = parseCallerStatus(Long.parseLong(callerValue[13].split(",")[1]));
@@ -564,7 +561,7 @@ public class InstantStatus {
         } else {
             notBookedStationStatuses[callerIndex] = new StationStatus();
             notBookedStationStatuses[callerIndex].setStatus(StationStatus.Status.DISABLE);
-            System.out.println("14號叫車器失去連線"); // TODO: Insert database.
+            System.out.println("14號叫車器失去連線");
         }
 
         // 處理 notBookedStationStatuses
@@ -576,14 +573,14 @@ public class InstantStatus {
                 // 錯誤，任務起始站棧板離開。
                 System.out.println("錯誤，任務起始站棧板離開。");
                 status.setStatus(StationStatus.Status.UNEXPECTED_PALLET);
-                callerStatus[i] = true;  // TODO: callStationAlarm
+                callerStatus[i] = true;  // callStationAlarm
             }else if(processBookedStation == 1 && notBookedStatus == 1){
                 status.setStatus(StationStatus.Status.BOOKING);
             }else if(processBookedStation == 2 && notBookedStatus == 1){
                 // 錯誤，任務終點站上有其他棧板。
                 System.out.println("錯誤，任務終點站上有其他棧板。");
                 status.setStatus(StationStatus.Status.UNEXPECTED_PALLET);
-                callerStatus[i] = true;  // TODO: callStationAlarm
+                callerStatus[i] = true;  // callStationAlarm
             }else if(processBookedStation == 2 && notBookedStatus == 0){
                 status.setStatus(StationStatus.Status.BOOKING);
             }else if(processBookedStation == 4 && notBookedStatus == 0){
