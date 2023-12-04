@@ -6,14 +6,12 @@
         <!-- <base id="Base"> -->
         <script>
             var baseUrl;
-            if (window.location.href.startsWith('http://127.0.0.1:5500')) {
+            if (window.location.port !== "8080") {
                 // Live Server 环境
                 console.log('Running on Live Server');
-                baseUrl = "http://localhost:8080/YIDAGV";
+                baseUrl = "http://"+window.location.hostname+":8080/YIDAGV";
                 var baseHref = document.createElement("base");
-                // var baseHref = document.getElementById("Base");
-                // baseHref.href = "http://127.0.0.1:5500/static/";
-                baseHref.href = "http://127.0.0.1:5500/";
+                baseHref.href = window.location.origin + "/";
                 document.head.appendChild(baseHref);
 
                 document.addEventListener("DOMContentLoaded", function() {
