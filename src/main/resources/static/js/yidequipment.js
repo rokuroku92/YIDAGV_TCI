@@ -203,7 +203,7 @@ function updateAgvStatus(data){  // 更新資料
         if(data[i].battery === 0 && data[i].signal === 0){
             document.getElementById("agvOnlineStatus").style.display = "none";
             document.getElementById("agvOfflineStatus").style.display = "block";
-            demoPlace();
+//            demoPlace();
         }else{
             document.getElementById("agvOfflineStatus").style.display = "none";
             document.getElementById("agvOnlineStatus").style.display = "block";

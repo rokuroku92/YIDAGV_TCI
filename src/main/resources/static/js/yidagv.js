@@ -206,7 +206,7 @@ function updateAgvStatus(data){  // 更新資料
             document.getElementById("agvOnlineStatus").style.display = "none";
             document.getElementById("agvOfflineStatus").style.display = "block";
 
-            demoPlace();
+//            demoPlace();
         }else{
             document.getElementById("agvOfflineStatus").style.display = "none";
             document.getElementById("agvOnlineStatus").style.display = "block";
