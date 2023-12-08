@@ -1,10 +1,12 @@
 //const notificationDict = {1: "PCB測試", 2: "PCB外線", 3: "PCB外AOI", 4: "PCB網印", 5: "CNC二廠", 6: "FQC", 7: "BGA整面C", 8: "棕化", 9: "內層線路", 10: "Suep", 11: "FVI", 12: "PCB噴塗", 13: "BGA整面A", 14: "CNC一廠", 15: "Routing"};
 const notificationDict = {};
+const stationsDict = {};
 const agvStatusDict = {};
 var lastTasks;
 
 window.onload = async function(){
     try{
+        await setStationsDict();
         await setNotificationStationsDict();
         await setAgvStatusDict();
     }catch(error){
@@ -22,6 +24,26 @@ window.onload = async function(){
     setInterval(getIAlarm, 1000);
     setInterval(getAnalysis, 60000);
 };
+
+function setStationsDict() {
+    return new Promise((resolve, reject) => {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', baseUrl + "/api/homepage/stationsData", true);
+        xhr.send();
+        xhr.onload = function(){
+            if(xhr.status == 200){
+                let stationList = JSON.parse(this.responseText);
+                for(let i=0;i<stationList.length;i++){
+                    stationsDict[stationList[i].id] = stationList[i].name;
+                }
+//                console.log("stationsDict: ", stationsDict);
+                resolve(); // 解析成功时，将 Promise 设置为已完成状态
+            }else {
+                reject(new Error('Station列表獲取失敗')); // 解析失败时，将 Promise 设置为拒绝状态
+            }
+        };
+    });
+}
 
 function setAgvStatusDict() {
     return new Promise((resolve, reject) => {
@@ -54,7 +76,7 @@ function setNotificationStationsDict() {
                 for(let i=0;i<stationList.length;i++){
                     notificationDict[stationList[i].id] = stationList[i].name;
                 }
-//                console.log("stationsDict: ", stationsDict);
+//                console.log("notificationDict: ", notificationDict);
                 resolve(); // 解析成功时，将 Promise 设置为已完成状态
             }else {
                 reject(new Error('NotificationStation列表獲取失敗')); // 解析失败时，将 Promise 设置为拒绝状态
@@ -230,66 +252,66 @@ function demoPlace(){
 }
 
 const mapTagPositions = {
-    "1001": [92.5, 50],
-    "1002": [91.5, 50],
-    "1003": [92.5, 48],
-    "1004": [91.5, 48],
-    "1005": [92.5, 46],
-    "1006": [91.5, 46],
-    "1007": [92.5, 44],
-    "1008": [91.5, 44],
-    "1009": [92.5, 42],
-    "1010": [91.5, 42],
-    "1011": [92.5, 40],
-    "1012": [91.5, 40],
+    "1001": [91.5, 50], "1251": [91.5, 50], "1751": [91.5, 50],
+    "1002": [92.5, 50],
+    "1003": [91.5, 48], "1253": [91.5, 48], "1753": [91.5, 48],
+    "1004": [92.5, 48],
+    "1005": [91.5, 46], "1255": [91.5, 46], "1755": [91.5, 46],
+    "1006": [92.5, 46],
+    "1007": [91.5, 44], "1257": [91.5, 44], "1757": [91.5, 44],
+    "1008": [92.5, 44],
+    "1009": [91.5, 42], "1259": [91.5, 42], "1759": [91.5, 42],
+    "1010": [92.5, 42],
+    "1011": [91.5, 40], "1261": [91.5, 40], "1761": [91.5, 40],
+    "1012": [92.5, 40],
 
-    "1013": [91.5, 37],
-    "1014": [90, 34],
-    "1015": [85, 34],
-    "1016": [80, 34],
-    "1017": [76, 34],
+    "1263": [91.5, 37], "1763": [91.5, 37],
+    "1014": [90, 34], "1514": [90, 34],
+    "1015": [85, 34], "1515": [85, 34],
+    "1016": [80, 34], "1516": [80, 34],
+    "1017": [76, 34], "1517": [76, 34],
 
-    "1018": [70, 25],
-    "1019": [67, 25],
-    "1020": [64, 25],
-    "1021": [60, 25],
-    "1022": [57, 25],
-    "1023": [53, 25],
-    "1024": [50, 25],
-    "1025": [47, 25],
-    "1026": [43, 25],
-    "1027": [40, 25],
-    
-    "1028": [38, 20],
-    "1029": [38, 12],
+    "1018": [70, 25], "1518": [70, 25],
+    "1019": [67, 25], "1519": [67, 25],
+    "1020": [64, 25], "1520": [64, 25],
+    "1021": [60, 25], "1521": [60, 25],
+    "1022": [57, 25], "1522": [57, 25],
+    "1023": [53, 25], "1523": [53, 25],
+    "1024": [50, 25], "1524": [50, 25],
+    "1025": [47, 25], "1525": [47, 25],
+    "1026": [43, 25], "1526": [43, 25],
+    "1027": [40, 25], "1527": [40, 25],
 
-    "1030": [36, 6],
-    "1031": [33, 6],
-    "1032": [29, 6],
-    "1033": [26, 6],
-    "1034": [22, 6],
-    "1035": [19, 6],
-    "1036": [16, 6],
-    "1037": [13, 6],
-    "1038": [9, 6],
-    "1039": [6, 6],
+    "1278": [38, 20], "1778": [38, 20],
+    "1279": [38, 12], "1779": [38, 12],
 
-    "1040": [4.3, 10],
-    "1041": [4.3, 23],
-    "1042": [4.3, 37],
-    "1043": [4.3, 50],
+    "1030": [36, 6], "1530": [36, 6],
+    "1031": [33, 6], "1531": [33, 6],
+    "1032": [29, 6], "1532": [29, 6],
+    "1033": [26, 6], "1533": [26, 6],
+    "1034": [22, 6], "1534": [22, 6],
+    "1035": [19, 6], "1535": [19, 6],
+    "1036": [16, 6], "1536": [16, 6],
+    "1037": [13, 6], "1537": [13, 6],
+    "1038": [9, 6], "1538": [9, 6],
+    "1039": [6, 6], "1539": [6, 6],
 
-    "1044": [5, 65],
+    "1290": [4.3, 10], "1790": [4.3, 10],
+    "1291": [4.3, 23], "1791": [4.3, 23],
+    "1292": [4.3, 37], "1792": [4.3, 37],
+    "1293": [4.3, 50], "1793": [4.3, 50],
+
+    "1044": [5, 65], "1294": [5, 65], "1794": [5, 65],
     "1045": [6, 65],
-    "1046": [5, 67],
+    "1046": [5, 67], "1296": [5, 67], "1796": [5, 67],
     "1047": [6, 67],
-    "1048": [5, 69],
+    "1048": [5, 69], "1298": [5, 69], "1798": [5, 69],
     "1049": [6, 69],
-    "1050": [5, 71],
+    "1050": [5, 71], "1300": [5, 71], "1800": [5, 71],
     "1051": [6, 71],
-    "1052": [5, 73],
+    "1052": [5, 73], "1302": [5, 73], "1802": [5, 73],
     "1053": [6, 73],
-    "1054": [5, 76],
+    "1804": [5, 76],
 
 }
 
@@ -314,7 +336,7 @@ function updateTasks(data){
                 taskHTML += '<div class="row taskcontent"><div class="col-3">'+stationsDict[data[i].startStationId]+'</div>'+
                             '<div class="col-4">'+notificationDict[data[i].notificationStationId]+'</div><div class="col-3">'+stationsDict[data[i].terminalStationId]+
                             '</div></div>';
-                document.getElementById(stationsDict[data[i].terminalStationId]+"b").innerHTML = notificationDict[data[i].notificationStationId];
+//                document.getElementById(stationsDict[data[i].terminalStationId]+"b").innerHTML = notificationDict[data[i].notificationStationId];
                         //    console.log(data.tasks[i].notice_station);
             }
             document.getElementById("task_body").innerHTML = taskHTML;

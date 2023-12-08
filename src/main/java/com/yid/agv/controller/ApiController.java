@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 import com.yid.agv.model.*;
 import com.yid.agv.service.AnalysisService;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.yid.agv.service.HomePageService;
 import com.yid.agv.service.TaskService;
@@ -42,27 +40,27 @@ public class ApiController {
 
     @GetMapping(value = "/homepage/tasks", produces = MediaType.APPLICATION_JSON_VALUE)
     public String getTasksJson() {
-        return gson.toJson(taskService.getTaskQueue());
-//        Queue<QTask> q = new ArrayDeque<>();
-//        QTask t = new QTask();
-//        t.setTaskNumber("#202308010001");
-//        t.setAgvId(1);
-//        t.setModeId(1);
-//        t.setStartStationId(6);
-//        t.setTerminalStationId(12);
-//        t.setNotificationStationId(13);
-//        t.setStatus(0);
-//        QTask t2 = new QTask();
-//        t2.setTaskNumber("#202308010002");
-//        t2.setAgvId(1);
-//        t2.setModeId(1);
-//        t2.setStartStationId(7);
-//        t2.setTerminalStationId(11);
-//        t2.setNotificationStationId(11);
-//        t2.setStatus(1);
-//        q.offer(t);
-//        q.offer(t2);
-//        return gson.toJson(q);
+//        return gson.toJson(taskService.getTaskQueue());
+        Queue<QTask> q = new ArrayDeque<>();
+        QTask t = new QTask();
+        t.setTaskNumber("#202308010001");
+        t.setAgvId(1);
+        t.setModeId(1);
+        t.setStartStationId(6);
+        t.setTerminalStationId(12);
+        t.setNotificationStationId(13);
+        t.setStatus(0);
+        QTask t2 = new QTask();
+        t2.setTaskNumber("#202308010002");
+        t2.setAgvId(1);
+        t2.setModeId(1);
+        t2.setStartStationId(7);
+        t2.setTerminalStationId(11);
+        t2.setNotificationStationId(11);
+        t2.setStatus(1);
+        q.offer(t);
+        q.offer(t2);
+        return gson.toJson(q);
     }
 
     @GetMapping(value = "/homepage/tasks/today", produces = MediaType.APPLICATION_JSON_VALUE)

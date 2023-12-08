@@ -121,7 +121,7 @@ public class InstantStatus {
                 }
             }
             case PRE_TERMINAL_STATION -> {
-                if (terminalStation!=0 && place.equals(Integer.toString(stationIdTagMap.get(terminalStation)))){
+                if (terminalStation!=0 && place.equals(Integer.toString(stationIdTagMap.get(terminalStation)-1))){
                     taskQueue.setBookedStation(terminalStation,0);
                     taskProgress = TaskProgress.COMPLETED;
                 }
@@ -149,6 +149,7 @@ public class InstantStatus {
         notificationDao.insertMessage(agvTitle, NotificationDao.Status.OFFLINE);
         CountUtilizationRate.isPoweredOn[i] = false;
         CountUtilizationRate.isWorking[i] = false;
+        homePageService.setIAlarm(0);
     }
 
 
@@ -188,12 +189,14 @@ public class InstantStatus {
             lastAgvStatusData[i] = data[5].trim();
         }
 
+        boolean[] taskStatus = parseAGVStatus(Integer.parseInt(data[4].trim()));
+
         if(tagError[i]) {  // 卡號錯誤
-            handleTagError(parseAGVStatus(Integer.parseInt(data[4].trim())), agvStatus, i);
+            System.out.println("In tagError");
+            handleTagError(taskStatus, agvStatus, i);
         } else if(agvStatus.getStatus() == 2) { // ONLINE
             time[i]=0;
             // data[4] 任務狀態
-            boolean[] taskStatus = parseAGVStatus(Integer.parseInt(data[4].trim()));
             if (taskStatus[7]) {
                 handleFailedTask(agvStatus);
             } else {
@@ -204,7 +207,6 @@ public class InstantStatus {
                 }
             }
         } else if (agvStatus.getStatus() == 8) { // 若前有障礙時
-            System.out.println("in");
             if(time[i]<5){
                 System.out.println("time++");
                 time[i]++;
@@ -220,22 +222,34 @@ public class InstantStatus {
     private boolean[] lastTaskBuffer;
     private void handleTagError(boolean[] taskStatus, AgvStatus agvStatus, int i){
         if (taskStatus[0] && !lastTaskBuffer[i]) {
-            if(!fixAgvTagErrorCompleted){
+            System.out.println("Wait fix tag error...");
+//            if(!fixAgvTagErrorCompleted){
+            if(agvStatus.getStatus() == 10){
+                System.out.println("fix tag error!");
                 fixAgvTagError();
             }
         } else if (taskStatus[0] && lastTaskBuffer[i]) {
+            System.out.println("Completed Tag Error!!");
             tagError[i] = false;
             fixAgvTagErrorCompleted = false;
             tagErrorDispatchCompleted = false;
             lastTaskBuffer[i] = false;
         } else if (!taskStatus[0]) {
-            if(!iStandbyTask && !tagErrorDispatchCompleted){
+            System.out.println("Wait reDispatch...");
+            if(!iStandbyTask && (!tagErrorDispatchCompleted || taskStatus[7])){
                 switch (taskProgress){
                     case PRE_START_STATION -> tagErrorDispatch(agvStatus.getPlace(), 1);
                     case PRE_TERMINAL_STATION -> tagErrorDispatch(agvStatus.getPlace(), 2);
                 }
             }
             lastTaskBuffer[i] = true;
+            if (iStandbyTask) {
+                System.out.println("Completed toStandbyTask Tag Error!!");
+                tagError[i] = false;
+                fixAgvTagErrorCompleted = false;
+                tagErrorDispatchCompleted = false;
+                lastTaskBuffer[i] = false;
+            }
         }
     }
 
@@ -266,6 +280,7 @@ public class InstantStatus {
     private void tagErrorDispatch(String place, int mode){
         String result = ProcessTasks.dispatchTaskToAGV(notificationDao, taskQueue.getTaskByTaskNumber(taskQueue.getNowTaskNumber()), place, mode);
         if(result.equals("OK")) {
+            System.out.println("reDispatch!...");
             tagErrorDispatchCompleted = true;
         }
     }
@@ -338,10 +353,16 @@ public class InstantStatus {
                 }
             }
             case 1 -> {
-                // AGV 緊急停止
-                agvStatus.setStatus(AgvStatus.Status.STOP);
-                notificationDao.insertMessage(agvTitle, NotificationDao.Status.STOP);
-                homePageService.setIAlarm(1);
+                if (Integer.parseInt(data[5].trim()) % 10 == 1) {// AGV 手動模式
+                    agvStatus.setStatus(AgvStatus.Status.MANUAL);
+                    notificationDao.insertMessage(agvTitle, NotificationDao.Status.MANUAL);
+                    homePageService.setIAlarm(0);
+                } else {// AGV 緊急停止
+                    agvStatus.setStatus(AgvStatus.Status.STOP);
+                    notificationDao.insertMessage(agvTitle, NotificationDao.Status.STOP);
+                    homePageService.setIAlarm(1);
+                }
+
             }
             case 2 -> {
                 // AGV 出軌
@@ -665,7 +686,8 @@ public class InstantStatus {
     private boolean fixAgvTagErrorCompleted;
     private void fixAgvTagError() {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(agvUrl + "/cmd=1&QJ0130X"))
+                .uri(URI.create(agvUrl + "/cmd=1&QJ0131X"))
+//                .uri(URI.create(agvUrl + "/cmd=1&QJ0130X"))
                 .GET()
                 .build();
         try {
