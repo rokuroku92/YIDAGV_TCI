@@ -205,7 +205,7 @@ public class ProcessTasks {
             }
         }
         if(standbyStation == -1 || lowBattery){
-            standbyStation = 16;
+            standbyStation = 17;
         }
 
 
