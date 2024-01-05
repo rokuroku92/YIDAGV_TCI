@@ -174,7 +174,7 @@ function equipmentAlarmProgress(){
         alarmToggle=false;
         const audio = document.createElement("audio");
         // audio.src = baseUrl+"/audio/laser.mp3";
-        audio.src = baseUrl+"/audio/alarm1.mp3";
+        audio.src = baseUrl+"/audio/alarm3.mp3";
         audio.play();
     }else{
         document.getElementById("messagebg").style.backgroundColor = "#FFFFFF";
