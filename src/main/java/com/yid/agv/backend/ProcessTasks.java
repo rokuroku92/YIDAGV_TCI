@@ -185,7 +185,7 @@ public class ProcessTasks {
     }
 
     private static final int[] stationTag1 = new int[]{1002, 1004, 1006, 1008, 1010, 1012};
-    private static final int[] stationTag2 = new int[]{1045, 1047, 1049, 1051, 1053, 1804};
+    private static final int[] stationTag2 = new int[]{1045, 1047, 1049, 1051, 1053, 1054};
     public static void goStandbyTaskByAgvId(NotificationDao notificationDao, TaskDao taskDao, int agvId, AgvStatus agvStatus, boolean lowBattery){
         int place = Integer.parseInt(agvStatus.getPlace());
         int standbyStation = -1;

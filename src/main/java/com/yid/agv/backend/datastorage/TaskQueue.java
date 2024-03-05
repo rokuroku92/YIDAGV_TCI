@@ -94,7 +94,7 @@ public class TaskQueue {
 
 
     private final int[] stationTag1 = new int[]{1002, 1004, 1006, 1008, 1010, 1012};
-    private final int[] stationTag2 = new int[]{1045, 1047, 1049, 1051, 1053, 1804};
+    private final int[] stationTag2 = new int[]{1045, 1047, 1049, 1051, 1053, 1054};
     public QTask peekTaskWithPlace() {
         if(taskQueue.isEmpty())return null;
         int place = Integer.parseInt(agvManager.getAgvStatus(1).getPlace()); // 只有一台車id=1
