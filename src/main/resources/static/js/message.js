@@ -45,3 +45,5 @@ function addMessage(data){
     }
     document.getElementById("notification").innerHTML = messageHTML;
 }
+
+

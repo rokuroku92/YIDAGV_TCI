@@ -26,6 +26,9 @@ import java.net.http.HttpResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.yid.agv.repository.NotificationDao.Status.PALLET_EXCEPTION_LEAVE;
+import static com.yid.agv.repository.NotificationDao.Status.PALLET_EXCEPTION_OTHER_CASE;
+
 @Component
 public class InstantStatus {
 
@@ -593,6 +596,7 @@ public class InstantStatus {
             if(processBookedStation == 1 && notBookedStatus == 0){
                 // 錯誤，任務起始站棧板離開。
                 System.out.println("錯誤，任務起始站棧板離開。");
+                notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, PALLET_EXCEPTION_LEAVE);
                 status.setStatus(StationStatus.Status.UNEXPECTED_PALLET);
                 callerStatus[i] = true;  // callStationAlarm
             }else if(processBookedStation == 1 && notBookedStatus == 1){
@@ -600,6 +604,7 @@ public class InstantStatus {
             }else if(processBookedStation == 2 && notBookedStatus == 1){
                 // 錯誤，任務終點站上有其他棧板。
                 System.out.println("錯誤，任務終點站上有其他棧板。");
+                notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, PALLET_EXCEPTION_OTHER_CASE);
                 status.setStatus(StationStatus.Status.UNEXPECTED_PALLET);
                 callerStatus[i] = true;  // callStationAlarm
             }else if(processBookedStation == 2 && notBookedStatus == 0){

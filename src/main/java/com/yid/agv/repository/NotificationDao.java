@@ -28,7 +28,7 @@ public interface NotificationDao {
         EXCEPTION_EXCLUSION(12), SENSOR_ERROR(13), CHARGE_ERROR(14), ERROR_AGV_DATA(15),
         FAILED_EXECUTION_TASK(16), FAILED_EXECUTION_TASK_THREE_TIMES(17),
         FAILED_SEND_TASK(18), FAILED_SEND_TASK_THREE_TIMES(19), BATTERY_TOO_LOW(20),
-        CALLER_LONG_OFFLINE(21);
+        CALLER_LONG_OFFLINE(21), PALLET_EXCEPTION_LEAVE(22), PALLET_EXCEPTION_OTHER_CASE(23);
         private final int value;
         Status(int value) {
             this.value = value;

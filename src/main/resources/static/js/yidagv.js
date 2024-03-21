@@ -1,8 +1,10 @@
-//const notificationDict = {1: "PCB測試", 2: "PCB外線", 3: "PCB外AOI", 4: "PCB網印", 5: "CNC二廠", 6: "FQC", 7: "BGA整面C", 8: "棕化", 9: "內層線路", 10: "Suep", 11: "FVI", 12: "PCB噴塗", 13: "BGA整面A", 14: "CNC一廠", 15: "Routing"};
+const notificationDict = {1: "PCB測試",2: "PCB外線",3: "FQC",4: "FVI",5: "Routing",6: "BGA整面C",7: "PCB外AOI",8: "PCB噴塗",9: "Suep",10: "CNC一廠",11: "PCB網印",12: "棕化",13: "內層線路",14: "BGA整面A",15: "CNC二廠",16: "待命"};
 //const stationsDict = {1: "1-1", 2: "1-2", 3: "1-3", 4: "1-4", 5: "1-5", 6: "2-1", 7: "2-2", 8: "2-3", 9: "2-4", 10: "2-5", 11: "3-1", 12: "3-2", 13: "3-3", 14: "3-4", 15: "3-5"};
-const notificationDict = {};
+// const notificationDict = {};
+const notificationDictThai = {1: "PCB測試",2: "PCB外線",3: "FQC",4: "FVI",5: "Routing",6: "BGAเจินเมี้ยนC",7: "AOIนอกPCB",8: "การฉีดพ่น(เผินถู)PCB",9: "Suep",10: "CNCโรง1",11: "การพิมพ์ (หวั่งหยิ้ง)PCB",12: "บราวนิ่ง(จงฮ้าว)",13: "ภายใน(เน้ยเฉินเซี้ยนลู้)",14: "BGAเจินเมี้ยนA",15: "CNCโรง2",16: "รอ"};
 const stationsDict = {};
 const agvStatusDict = {};
+var nowLanguage="zh";
 var lastTasks;
 
 window.onload = async function(){
@@ -198,8 +200,6 @@ function getAnalysis(){
     };
 }
 
-
-
 function updateAgvStatus(data){  // 更新資料
     for(let i=0;i<data.length;i++){
         if(data[i].battery === 0 && data[i].signal === 0){
@@ -337,24 +337,34 @@ function updateTasks(data){
             var taskHTML="";
             for(let i=0;i<data.length;i++){
                 if (data[i].status != 0){
+                    let notificationstation = nowLanguage == 'thai' ? notificationDictThai[data[i].notificationStationId] : notificationDict[data[i].notificationStationId];
                     taskHTML += '<div class="row taskcontent"><div class="col-3">'+stationsDict[data[i].startStationId]+'</div>'+
-                                                            '<div class="col-4">'+notificationDict[data[i].notificationStationId]+'</div><div class="col-3">'+stationsDict[data[i].terminalStationId]+
+                                                            '<div class="col-4">'+notificationstation+'</div><div class="col-3">'+stationsDict[data[i].terminalStationId]+
                                                             '</div><div class="col-2 removebtncol"></div></div>';
                 }else{
+                    let notificationstation = nowLanguage == 'thai' ? notificationDictThai[data[i].notificationStationId] : notificationDict[data[i].notificationStationId];
                     taskHTML += '<div class="row taskcontent"><div class="col-3">'+stationsDict[data[i].startStationId]+'</div>'+
-                                                        '<div class="col-4"><nobr>'+notificationDict[data[i].notificationStationId]+'</nobr></div><div class="col-3">'+
+                                                        '<div class="col-4"><nobr>'+notificationstation+'</nobr></div><div class="col-3">'+
                                                         stationsDict[data[i].terminalStationId]+'</div><div class="col-2 removebtncol">'+
                                                         '<button type="button" class="btn btnt" onclick="removeTaskById('+data[i].taskNumber.substring(1)+
                                                         ')"><svg width="16" height="16"><use xlink:href="#trash"/></svg></button></div></div>';
                 }
-                document.getElementById(stationsDict[data[i].terminalStationId]+"b").innerHTML = notificationDict[data[i].notificationStationId];
+                document.getElementById(stationsDict[data[i].terminalStationId]+"b").innerHTML = notificationstation;
                         //    console.log(data.tasks[i].notice_station);
             }
             document.getElementById("task_body").innerHTML = taskHTML;
-            lastTasks = data;
         }else{
-            document.getElementById('task_body').innerHTML = '<p style="color: #5C5C5C;padding-top: 10px;">目前沒有任務</p>';
+            switch(nowLanguage){
+                case "thai":
+                    document.getElementById('task_body').innerHTML = '<p style="color: #5C5C5C;padding-top: 10px;">ขณะนี้ไม่มีงานใดๆ</p>';
+                    break;
+                default:
+                    document.getElementById('task_body').innerHTML = '<p style="color: #5C5C5C;padding-top: 10px;">目前沒有任務</p>';
+                    break;
+            }
+            
         }
+        lastTasks = data;
     }
 }
 
@@ -401,7 +411,88 @@ function updateStationStatus(data){
 }
 
 function updateMessage(data){
-    document.getElementById("message").innerHTML = data[0].content;
+    switch(nowLanguage){
+        case "thai":
+            let originalMessage = data[0].content;
+            switch(originalMessage){
+                case "離線":
+                    document.getElementById("message").innerHTML = "ออฟไลน์";
+                    break;
+                case "連線":
+                    document.getElementById("message").innerHTML = "เชื่อมต่อ";
+                    break;
+                case "AGV 手動模式":
+                    document.getElementById("message").innerHTML = "โหมดแมนนวล AGV";
+                    break;
+                case "AGV 重新啟動":
+                    document.getElementById("message").innerHTML = "รีสตาร์ท AGV";
+                    break;
+                case "AGV 緊急停止":
+                    document.getElementById("message").innerHTML = "AGV หยุดฉุกเฉิน";
+                    break;
+                case "AGV 出軌":
+                    document.getElementById("message").innerHTML = "AGV ตกราง";
+                    break;
+                case "AGV 發生碰撞":
+                    document.getElementById("message").innerHTML = "เอจีวีชนกัน";
+                    break;
+                case "AGV 前有障礙":
+                    document.getElementById("message").innerHTML = "มีสิ่งกีดขวางด้านหน้า AGV";
+                    break;
+                case "AGV 轉向角度過大":
+                    document.getElementById("message").innerHTML = "มุมบังคับเลี้ยว AGV ใหญ่เกินไป";
+                    break;
+                case "AGV 卡號錯誤":
+                    document.getElementById("message").innerHTML = "ข้อผิดพลาดหมายเลขบัตร AGV";
+                    break;
+                case "AGV 未知卡號":
+                    document.getElementById("message").innerHTML = "AGV ไม่ทราบหมายเลขบัตร";
+                    break;
+                case "AGV 異常排除":
+                    document.getElementById("message").innerHTML = "การแก้ไขปัญหาความผิดปกติของ AGV";
+                    break;
+                case "AGV 感知器偵測異常":
+                    document.getElementById("message").innerHTML = "เซ็นเซอร์ AGV ตรวจพบความผิดปกติ";
+                    break;
+                case "AGV 充電異常":
+                    document.getElementById("message").innerHTML = "ความผิดปกติของการชาร์จ AGV";
+                    break;
+                case "讀取狀態錯誤":
+                    document.getElementById("message").innerHTML = "ข้อผิดพลาดสถานะการอ่าน";
+                    break;
+                case "任務執行失敗":
+                    document.getElementById("message").innerHTML = "การดำเนินการงานล้มเหลว";
+                    break;
+                case "任務執行三次皆失敗":
+                    document.getElementById("message").innerHTML = "งานล้มเหลวสามครั้ง";
+                    break;
+                case "發送任務失敗":
+                    document.getElementById("message").innerHTML = "การส่งงานล้มเหลว";
+                    break;
+                case "發送任務三次皆失敗":
+                    document.getElementById("message").innerHTML = "ไม่สามารถส่งงานสามครั้ง";
+                    break;
+                case "電池電量過低":
+                    document.getElementById("message").innerHTML = "พลังงานแบตเตอรี่ต่ำเกินไป";
+                    break;
+                case "caller離線超過20秒，請至現場排除問題":
+                    document.getElementById("message").innerHTML = "ผู้โทรออฟไลน์นานกว่า 20 วินาที โปรดไปที่ไซต์เพื่อแก้ไขปัญหา";
+                    break;
+                case "錯誤，任務起始站棧板離開。":
+                    document.getElementById("message").innerHTML = "เกิดข้อผิดพลาด เหลือแท่นวางสถานีเริ่มต้นงาน";
+                    break;
+                case "錯誤，任務終點站上有其他棧板。":
+                    document.getElementById("message").innerHTML = "เกิดข้อผิดพลาด มีพาเลทอื่นๆ บนอาคารผู้โดยสารภารกิจ";
+                    break;
+                default:
+                    document.getElementById("message").innerHTML = data[0].content;
+                    break;
+            }
+            break;
+        default:
+            document.getElementById("message").innerHTML = data[0].content;
+            break;
+    }
     // console.log(data[0]);
 }
 
@@ -418,38 +509,14 @@ function bindEl(){
 
     const btns = document.querySelectorAll(".btn-check");
     // 逐一檢查按鈕是否被選中
-    btns.forEach(btn => {
-        btn.addEventListener("click", () => {
-            updateLan(btn.id);
-            console.log("選中的按鈕ID是：" + btn.id);
-        });
-    });
+    // btns.forEach(btn => {
+    //     btn.addEventListener("click", () => {
+    //         updateLan(btn.id);
+    //         console.log("選中的按鈕ID是：" + btn.id);
+    //     });
+    // });
 }
 
-function updateLan(lan) {
-    switch(lan){
-        case "lanTaiwan":
-            document.getElementById("labelAgvStatus").innerHTML = "AGV 狀態";
-            document.getElementById("labelTask").innerHTML = "任務佇列";
-            document.getElementById("labelTStartStation").innerHTML = "<nobr>出發站</nobr>";
-            document.getElementById("labelTNotificationStation").innerHTML = "<nobr>通知站</nobr>";
-            document.getElementById("labelTTerminalStation").innerHTML = "<nobr>終點站</nobr>";
-            document.getElementById("labelStartStation").innerHTML = "出發站";
-            document.getElementById("labelNotificationStation").innerHTML = "通知站";
-            break;
-        case "lanThai":
-            document.getElementById("labelAgvStatus").innerHTML = "สถานะ AGV";
-            document.getElementById("labelTask").innerHTML = "คิวงาน";
-            document.getElementById("labelTStartStation").innerHTML = "<nobr>สถานีต้นทาง</nobr>";
-            document.getElementById("labelTNotificationStation").innerHTML = "<nobr>สถานีแจ้งเตือน</nobr>";
-            document.getElementById("labelTTerminalStation").innerHTML = "<nobr>เทอร์มินัล</nobr>";
-            document.getElementById("labelStartStation").innerHTML = "สถานีต้นทาง";
-            document.getElementById("labelNotificationStation").innerHTML = "สถานีแจ้งเตือน";
-            break;
-        default:
-            break;
-    }
-}
 
 function checkStartInput() {
     const value = document.getElementById('ststation').value;
@@ -491,7 +558,8 @@ function setStartStationNo(no) {
 
 function setNotification(no) {
     document.getElementById('notificationstation').value = no;
-    document.getElementById('notificationstationText').value = notificationDict[no];
+    let notificationstationText = nowLanguage == 'thai' ? notificationDictThai[no] : notificationDict[no];
+    document.getElementById('notificationstationText').value = notificationstationText;
     checkStartAndTerminalInput();
 }
 // 紀錄確認列與發送
@@ -556,4 +624,88 @@ function removeTaskById(id) {
             }
         }
     };
+}
+
+
+function changeLanguage(lan) {
+    nowLanguage=lan;
+    switch(lan){
+        case "thai":
+            document.getElementById("labelAgvStatus").innerHTML = "สถานะ AGV";
+            document.getElementById("agvOfflineStatus").innerHTML = "<h1>ไม่ได้เชื่อมต่อ AGV</h1>";
+            document.getElementById("labelAStatus").innerHTML = "สถานะการทำงาน&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            document.getElementById("labelATask").innerHTML = "งานปัจจุบัน&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            document.getElementById("labelAPlace").innerHTML = "ตำแหน่งเรียลไทม์&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            document.getElementById("labelABattery").innerHTML = "แรงดันไฟฟ้าในปัจจุบัน";
+            document.getElementById("labelASignal").innerHTML = "ความแรงของสัญญาณ";
+            document.getElementById("labelTask").innerHTML = "คิวงาน";
+            document.getElementById("labelTStartStation").innerHTML = "<nobr>สถานีต้นทาง</nobr>";
+            document.getElementById("labelTNotificationStation").innerHTML = "<nobr>สถานีแจ้งเตือน</nobr>";
+            document.getElementById("labelTTerminalStation").innerHTML = "<nobr>เทอร์มินัล</nobr>";
+            document.getElementById("labelStartStation").innerHTML = "สถานีต้นทาง";
+            document.getElementById("labelNotificationStation").innerHTML = "สถานีแจ้งเตือน";
+            document.getElementById("labelAnalysis").innerHTML = "การวิเคราะห์ผลประโยชน์";
+            document.getElementById("labelMessage").innerHTML = "ข้อความระบบ:";
+            document.getElementById("labelSendStartStation").innerHTML = "สถานีต้นทาง:";
+            document.getElementById("labelSendNotificationStation").innerHTML = "สถานีแจ้งเตือน:";
+            document.getElementById("PCB測試").innerHTML = "<nobr>PCB測試</nobr>";
+            document.getElementById("PCB外線").innerHTML = "<nobr>PCB外線</nobr>";
+            document.getElementById("FQC").innerHTML = "<nobr>FQC</nobr>";
+            document.getElementById("FVI").innerHTML = "<nobr>FVI</nobr>";
+            document.getElementById("Routing").innerHTML = "<nobr>Routing</nobr>";
+            document.getElementById("BGA整面C").innerHTML = "<nobr>BGAเจินเมี้ยนC</nobr>";
+            document.getElementById("PCB外AOI").innerHTML = "<nobr>AOIนอกPCB</nobr>";
+            document.getElementById("PCB噴塗").innerHTML = "<nobr>การฉีดพ่น(เผินถู)PCB</nobr>";
+            document.getElementById("Suep").innerHTML = "<nobr>Suep</nobr>";
+            document.getElementById("CNC一廠").innerHTML = "<nobr>CNCโรง1</nobr>";
+            document.getElementById("PCB網印").innerHTML = "<nobr>การพิมพ์ (หวั่งหยิ้ง)PCB</nobr>";
+            document.getElementById("棕化").innerHTML = "<nobr>บราวนิ่ง(จงฮ้าว)</nobr>";
+            document.getElementById("內層線路").innerHTML = "<nobr>ภายใน(เน้ยเฉินเซี้ยนลู้)</nobr>";
+            document.getElementById("BGA整面A").innerHTML = "<nobr>BGAเจินเมี้ยนA</nobr>";        
+            document.getElementById("CNC二廠").innerHTML = "<nobr>CNCโรง2</nobr>";
+            document.getElementById("taskConfirmBTN").value = "ยืนยัน";
+            document.getElementById("taskClearBTN").value = "ชัดเจน";
+            break;
+        default:
+            document.getElementById("labelAgvStatus").innerHTML = "AGV 狀態";
+            document.getElementById("agvOfflineStatus").innerHTML = "<h1>AGV未連線</h1>";
+            document.getElementById("labelAStatus").innerHTML = "工作狀態";
+            document.getElementById("labelATask").innerHTML = "目前任務";
+            document.getElementById("labelAPlace").innerHTML = "即時位置";
+            document.getElementById("labelABattery").innerHTML = "目前電壓";
+            document.getElementById("labelASignal").innerHTML = "信號強度";
+            document.getElementById("labelTask").innerHTML = "任務佇列";
+            document.getElementById("labelTStartStation").innerHTML = "<nobr>出發站</nobr>";
+            document.getElementById("labelTNotificationStation").innerHTML = "<nobr>通知站</nobr>";
+            document.getElementById("labelTTerminalStation").innerHTML = "<nobr>終點站</nobr>";
+            document.getElementById("labelStartStation").innerHTML = "出發站";
+            document.getElementById("labelNotificationStation").innerHTML = "通知站";
+            document.getElementById("labelAnalysis").innerHTML = "效益分析";
+            document.getElementById("labelMessage").innerHTML = "系統訊息:";
+            document.getElementById("labelSendStartStation").innerHTML = "出發站：";
+            document.getElementById("labelSendNotificationStation").innerHTML = "通知站：";
+            document.getElementById("PCB測試").innerHTML = "<nobr>PCB測試</nobr>";
+            document.getElementById("PCB外線").innerHTML = "<nobr>PCB外線</nobr>";
+            document.getElementById("FQC").innerHTML = "<nobr>FQC</nobr>";
+            document.getElementById("FVI").innerHTML = "<nobr>FVI</nobr>";
+            document.getElementById("Routing").innerHTML = "<nobr>Routing</nobr>";
+            document.getElementById("BGA整面C").innerHTML = "<nobr>BGA整面C</nobr>";
+            document.getElementById("PCB外AOI").innerHTML = "<nobr>PCB外AOI</nobr>";
+            document.getElementById("PCB噴塗").innerHTML = "<nobr>PCB噴塗</nobr>";
+            document.getElementById("Suep").innerHTML = "<nobr>Suep</nobr>";
+            document.getElementById("CNC一廠").innerHTML = "<nobr>CNC一廠</nobr>";
+            document.getElementById("PCB網印").innerHTML = "<nobr>PCB網印</nobr>";
+            document.getElementById("棕化").innerHTML = "<nobr>棕化</nobr>";
+            document.getElementById("內層線路").innerHTML = "<nobr>內層線路</nobr>";
+            document.getElementById("BGA整面A").innerHTML = "<nobr>BGA整面A</nobr>";        
+            document.getElementById("CNC二廠").innerHTML = "<nobr>CNC二廠</nobr>";
+            document.getElementById("taskConfirmBTN").value = "確認";
+            document.getElementById("taskClearBTN").value = "清除";
+            break;
+    }
+    let notificationstation = document.getElementById('notificationstation').value
+    if (notificationstation != null && notificationstation != ""){
+        setNotification(notificationstation);
+    }
+    lastTasks = [];
 }
