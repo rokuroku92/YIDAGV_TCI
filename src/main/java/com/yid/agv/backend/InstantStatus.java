@@ -10,6 +10,8 @@ import com.yid.agv.model.StationStatus;
 import com.yid.agv.repository.*;
 import com.yid.agv.service.HomePageService;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +33,7 @@ import static com.yid.agv.repository.NotificationDao.Status.PALLET_EXCEPTION_OTH
 
 @Component
 public class InstantStatus {
-
+    private static final Logger log = LoggerFactory.getLogger(InstantStatus.class);
     @Autowired
     private TestFakeData testFakeData;
     @Value("${agvControl.url}")
@@ -195,7 +197,7 @@ public class InstantStatus {
         boolean[] taskStatus = parseAGVStatus(Integer.parseInt(data[4].trim()));
 
         if(tagError[i]) {  // 卡號錯誤
-            System.out.println("In tagError");
+            log.info("In tagError");
             handleTagError(taskStatus, agvStatus, i);
         } else if(agvStatus.getStatus() == 2) { // ONLINE
             time[i]=0;
@@ -211,10 +213,8 @@ public class InstantStatus {
             }
         } else if (agvStatus.getStatus() == 8) { // 若前有障礙時
             if(time[i]<5){
-                System.out.println("time++");
                 time[i]++;
             }else{
-                System.out.println("alarm");
                 homePageService.setIAlarm(1);
             }
         }
@@ -225,20 +225,20 @@ public class InstantStatus {
     private boolean[] lastTaskBuffer;
     private void handleTagError(boolean[] taskStatus, AgvStatus agvStatus, int i){
         if (taskStatus[0] && !lastTaskBuffer[i]) {
-            System.out.println("Wait fix tag error...");
+            log.info("Wait fix tag error...");
 //            if(!fixAgvTagErrorCompleted){
             if(agvStatus.getStatus() == 10){
-                System.out.println("fix tag error!");
+                log.info("fix tag error!");
                 fixAgvTagError();
             }
         } else if (taskStatus[0] && lastTaskBuffer[i]) {
-            System.out.println("Completed Tag Error!!");
+            log.info("Completed Tag Error!!");
             tagError[i] = false;
             fixAgvTagErrorCompleted = false;
             tagErrorDispatchCompleted = false;
             lastTaskBuffer[i] = false;
         } else if (!taskStatus[0]) {
-            System.out.println("Wait reDispatch...");
+            log.info("Wait reDispatch...");
             if(!iStandbyTask && (!tagErrorDispatchCompleted || taskStatus[7])){
                 switch (taskProgress){
                     case PRE_START_STATION -> tagErrorDispatch(agvStatus.getPlace(), 1);
@@ -247,7 +247,7 @@ public class InstantStatus {
             }
             lastTaskBuffer[i] = true;
             if (iStandbyTask) {
-                System.out.println("Completed toStandbyTask Tag Error!!");
+                log.info("Completed toStandbyTask Tag Error!!");
                 tagError[i] = false;
                 fixAgvTagErrorCompleted = false;
                 tagErrorDispatchCompleted = false;
@@ -283,7 +283,7 @@ public class InstantStatus {
     private void tagErrorDispatch(String place, int mode){
         String result = ProcessTasks.dispatchTaskToAGV(notificationDao, taskQueue.getTaskByTaskNumber(taskQueue.getNowTaskNumber()), place, mode);
         if(result.equals("OK")) {
-            System.out.println("reDispatch!...");
+            log.info("reDispatch!...");
             tagErrorDispatchCompleted = true;
         }
     }
@@ -349,7 +349,7 @@ public class InstantStatus {
                     default -> {
                         // 系統異常資料
                         agvStatus.setStatus(AgvStatus.Status.ERROR_AGV_DATA);
-                        System.out.println("異常agv狀態資料");
+                        log.warn("異常agv狀態資料");
                         notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, NotificationDao.Status.ERROR_AGV_DATA);
                         homePageService.setIAlarm(0);
                     }
@@ -424,7 +424,7 @@ public class InstantStatus {
             default -> {
                 // 系統異常資料
                 agvStatus.setStatus(AgvStatus.Status.ERROR_AGV_DATA);
-                System.out.println("異常agv狀態資料");
+                log.warn("異常agv狀態資料");
                 notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, NotificationDao.Status.ERROR_AGV_DATA);
             }
         }
@@ -537,7 +537,7 @@ public class InstantStatus {
                 notBookedStationStatuses[callerIndex].setStatus(StationStatus.Status.DISABLE);
                 callerIndex++;
             }
-            System.out.println("6號叫車器失去連線");
+            log.warn("6號叫車器失去連線");
         }
 
         if(iCallerConn[6]) {
@@ -551,7 +551,7 @@ public class InstantStatus {
         } else {
             notBookedStationStatuses[callerIndex] = new StationStatus();
             notBookedStationStatuses[callerIndex].setStatus(StationStatus.Status.DISABLE);
-            System.out.println("7號叫車器失去連線");
+            log.warn("7號叫車器失去連線");
         }
         callerIndex++;
 
@@ -572,7 +572,7 @@ public class InstantStatus {
                 notBookedStationStatuses[callerIndex].setStatus(StationStatus.Status.DISABLE);
                 callerIndex++;
             }
-            System.out.println("13號叫車器失去連線");
+            log.warn("13號叫車器失去連線");
         }
         if(iCallerConn[13]) {
             dataValue = parseCallerStatus(Long.parseLong(callerValue[13].split(",")[1]));
@@ -585,7 +585,7 @@ public class InstantStatus {
         } else {
             notBookedStationStatuses[callerIndex] = new StationStatus();
             notBookedStationStatuses[callerIndex].setStatus(StationStatus.Status.DISABLE);
-            System.out.println("14號叫車器失去連線");
+            log.warn("14號叫車器失去連線");
         }
 
         // 處理 notBookedStationStatuses
@@ -595,7 +595,7 @@ public class InstantStatus {
             StationStatus status = stationManager.getStationStatus(i+1);
             if(processBookedStation == 1 && notBookedStatus == 0){
                 // 錯誤，任務起始站棧板離開。
-                System.out.println("錯誤，任務起始站棧板離開。");
+                log.warn("錯誤，任務起始站棧板離開。");
                 notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, PALLET_EXCEPTION_LEAVE);
                 status.setStatus(StationStatus.Status.UNEXPECTED_PALLET);
                 callerStatus[i] = true;  // callStationAlarm
@@ -603,7 +603,7 @@ public class InstantStatus {
                 status.setStatus(StationStatus.Status.BOOKING);
             }else if(processBookedStation == 2 && notBookedStatus == 1){
                 // 錯誤，任務終點站上有其他棧板。
-                System.out.println("錯誤，任務終點站上有其他棧板。");
+                log.warn("錯誤，任務終點站上有其他棧板。");
                 notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, PALLET_EXCEPTION_OTHER_CASE);
                 status.setStatus(StationStatus.Status.UNEXPECTED_PALLET);
                 callerStatus[i] = true;  // callStationAlarm
@@ -645,10 +645,10 @@ public class InstantStatus {
             return Optional.of(data);
         } catch (IOException | InterruptedException e) {
 //            e.printStackTrace();
-            System.out.println("AGV 控制系統未連線");
             CountUtilizationRate.isPoweredOn = new boolean[agvIdDao.queryAGVList().size()];
             CountUtilizationRate.isWorking = new boolean[agvIdDao.queryAGVList().size()];
             if(iCon){
+                log.warn("AGV 控制系統未連線");
                 notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, NotificationDao.Status.OFFLINE);
                 iCon=false;
             }
@@ -676,10 +676,10 @@ public class InstantStatus {
             return Optional.of(data);
         } catch (IOException | InterruptedException e) {
 //            e.printStackTrace();
-            System.out.println("AGV 控制系統未連線");
             CountUtilizationRate.isPoweredOn = new boolean[agvIdDao.queryAGVList().size()];
             CountUtilizationRate.isWorking = new boolean[agvIdDao.queryAGVList().size()];
             if(iCon){
+                log.warn("AGV 控制系統未連線");
                 notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, NotificationDao.Status.OFFLINE);
                 iCon=false;
             }
@@ -797,8 +797,7 @@ public class InstantStatus {
     @Async
     private void doSendCaller(int id, int value){
         if(lastCaller[id-1] != value) {
-            System.out.print("Id: " + id);
-            System.out.println("  Value: " + value);
+            log.info("Id: " + id +"  Value: " + value);
             if(id != 6 && id != 7 && id != 13 && id != 14 && value == 2){
                 sendCallerExecutor.execute(() ->
                         callNotificationCaller(id, value)

@@ -10,6 +10,8 @@ import com.yid.agv.repository.NotificationDao;
 import com.yid.agv.repository.StationDao;
 import com.yid.agv.repository.TaskDao;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,6 +29,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class ProcessTasks {
+
+    private static final Logger log = LoggerFactory.getLogger(ProcessTasks.class);
     @Value("${agvControl.url}")
     private String agvUrlValue;
     @Value("${http.max_retry}")
@@ -72,15 +76,15 @@ public class ProcessTasks {
         } else if (taskQueue.iDispatch()) {
 //            InstantStatus.iStandby = false;
             QTask goTask = taskQueue.peekTaskWithPlace();
-            System.out.println("Process dispatch...");
-            System.out.println(agvManager.getAgvStatus(1).getPlace());
+            log.info("Process dispatch...");
+            log.info(agvManager.getAgvStatus(1).getPlace());
             String result = dispatchTaskToAGV(notificationDao, goTask, agvManager.getAgvStatus(1).getPlace(), 1);
             if(Objects.requireNonNull(result).equals("OK")){
                 taskQueue.updateTaskStatus(taskQueue.getNowTaskNumber(), 1);
                 InstantStatus.startStation = goTask.getStartStationId();
                 InstantStatus.terminalStation = goTask.getTerminalStationId();
             } else if (result.equals("FailedDispatch")) {
-                System.out.println("發送任務三次皆失敗，已取消任務");
+                log.warn("發送任務三次皆失敗，已取消任務");
                 notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, NotificationDao.Status.FAILED_SEND_TASK_THREE_TIMES);
                 taskQueue.failedTask();
             }
@@ -107,7 +111,7 @@ public class ProcessTasks {
                                 "&" + stationIdTagMap.get(task.getStartStationId()) + "&" + stationIdTagMap.get(task.getTerminalStationId());
                     }
 
-                    System.out.println("URL: " + url);
+                    log.info("URL: " + url);
 
                     // 看有沒有需要分成不一樣站點數的網址
 
@@ -120,12 +124,12 @@ public class ProcessTasks {
                     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                     String webpageContent = response.body().trim();
 
-                    System.out.println("Task number " + task.getTaskNumber() + " has been dispatched.");
+                    log.info("Task number " + task.getTaskNumber() + " has been dispatched.");
 
                     if(webpageContent.equals("OK")){
                         return "OK";
                     } else if (webpageContent.equals("FAIL")) {
-                        System.out.println("發送任務FAIL");
+                        log.warn("發送任務FAIL");
                         isRetrying = true;
                         retryCount++;
                         if (retryCount < MAX_RETRY) {
@@ -145,7 +149,7 @@ public class ProcessTasks {
                     return "Task null";
                 }
             } catch (IOException | InterruptedException e) {
-                System.out.println("發送任務失敗3秒後重新發送");
+                log.warn("發送任務失敗3秒後重新發送");
                 // 重新發送前增加延遲
                 notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, NotificationDao.Status.FAILED_SEND_TASK);
                 isRetrying = true;
@@ -166,7 +170,7 @@ public class ProcessTasks {
     }
 
     public static void failedTask(TaskQueue taskQueue, NotificationDao notificationDao, TaskDao taskDao){
-        System.out.println("任務執行三次皆失敗，已取消任務");
+        log.warn("任務執行三次皆失敗，已取消任務");
         notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, NotificationDao.Status.FAILED_EXECUTION_TASK_THREE_TIMES);
         taskDao.cancelTask(taskQueue.getNowTaskNumber());
         taskQueue.removeTaskByTaskNumber(taskQueue.getNowTaskNumber());
@@ -179,7 +183,7 @@ public class ProcessTasks {
         taskQueue.setBookedStation(cTask.getTerminalStationId(), 4);
         int analysisId = analysisDao.getTodayAnalysisId().get(cTask.getAgvId() - 1).getAnalysisId();
         analysisDao.updateTask(analysisDao.queryAnalysisByAnalysisId(analysisId).getTask() + 1, analysisId);
-        System.out.println("Completed task number "+cTask.getTaskNumber()+".");
+        log.info("Completed task number "+cTask.getTaskNumber()+".");
         taskQueue.completedTask();
         taskQueue.setNowTaskNumber("");
     }
@@ -231,13 +235,13 @@ public class ProcessTasks {
             toStandbyTask.setTerminalStationId(standbyStation);
             toStandbyTask.setNotificationStationId(16);
         }
-        System.out.println("toStandbyTask.getTaskNumber(): "+toStandbyTask.getTaskNumber());
-        System.out.println("formattedDateTime: "+formattedDateTime);
-        System.out.println("toStandbyTask.getAgvId(): "+toStandbyTask.getAgvId());
-        System.out.println("toStandbyTask.getStartStationId(): "+toStandbyTask.getStartStationId());
-        System.out.println("toStandbyTask.getTerminalStationId(): "+toStandbyTask.getTerminalStationId());
-        System.out.println("toStandbyTask.getNotificationStationId(): "+toStandbyTask.getNotificationStationId());
-        System.out.println("toStandbyTask.getModeId(): "+toStandbyTask.getModeId());
+        log.info("toStandbyTask.getTaskNumber(): "+toStandbyTask.getTaskNumber());
+        log.info("formattedDateTime: "+formattedDateTime);
+        log.info("toStandbyTask.getAgvId(): "+toStandbyTask.getAgvId());
+        log.info("toStandbyTask.getStartStationId(): "+toStandbyTask.getStartStationId());
+        log.info("toStandbyTask.getTerminalStationId(): "+toStandbyTask.getTerminalStationId());
+        log.info("toStandbyTask.getNotificationStationId(): "+toStandbyTask.getNotificationStationId());
+        log.info("toStandbyTask.getModeId(): "+toStandbyTask.getModeId());
 
         taskDao.insertTask(toStandbyTask.getTaskNumber(), formattedDateTime, Integer.toString(toStandbyTask.getAgvId()),
                 Integer.toString(toStandbyTask.getStartStationId()), Integer.toString(toStandbyTask.getTerminalStationId()),
@@ -246,13 +250,13 @@ public class ProcessTasks {
     }
 
     public static void failedGoStandbyTask(TaskDao taskDao){
-        System.out.println("Failed task number "+toStandbyTask.getTaskNumber()+".");
+        log.warn("Failed task number "+toStandbyTask.getTaskNumber()+".");
         taskDao.updateTaskStatus(toStandbyTask.getTaskNumber(), -1);
         toStandbyTask = null;
     }
 
     public static void completedGoStandbyTask(TaskDao taskDao){
-        System.out.println("Completed task number "+toStandbyTask.getTaskNumber()+".");
+        log.info("Completed task number "+toStandbyTask.getTaskNumber()+".");
         taskDao.updateTaskStatus(toStandbyTask.getTaskNumber(), 100);
         toStandbyTask = null;
     }

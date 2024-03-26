@@ -4,10 +4,13 @@ const notificationDict = {1: "PCB測試",2: "PCB外線",3: "FQC",4: "FVI",5: "Ro
 const notificationDictThai = {1: "PCB測試",2: "PCB外線",3: "FQC",4: "FVI",5: "Routing",6: "BGAเจินเมี้ยนC",7: "AOIนอกPCB",8: "การฉีดพ่น(เผินถู)PCB",9: "Suep",10: "CNCโรง1",11: "การพิมพ์ (หวั่งหยิ้ง)PCB",12: "บราวนิ่ง(จงฮ้าว)",13: "ภายใน(เน้ยเฉินเซี้ยนลู้)",14: "BGAเจินเมี้ยนA",15: "CNCโรง2",16: "รอ"};
 const stationsDict = {};
 const agvStatusDict = {};
-var nowLanguage="zh";
+var nowLanguage=localStorage.getItem("nowLanguage");
 var lastTasks;
 
 window.onload = async function(){
+    if(nowLanguage == 'thai') {
+        document.getElementById('lanThai').click();
+    }
     try{
         await setStationsDict();
         await setNotificationStationsDict();
@@ -629,30 +632,35 @@ function removeTaskById(id) {
 
 function changeLanguage(lan) {
     nowLanguage=lan;
+    localStorage.setItem("nowLanguage", lan);
     switch(lan){
         case "thai":
             document.getElementById("labelAgvStatus").innerHTML = "สถานะ AGV";
             document.getElementById("agvOfflineStatus").innerHTML = "<h1>ไม่ได้เชื่อมต่อ AGV</h1>";
             document.getElementById("labelAStatus").innerHTML = "สถานะการทำงาน&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
             document.getElementById("labelATask").innerHTML = "งานปัจจุบัน&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-            document.getElementById("labelAPlace").innerHTML = "ตำแหน่งเรียลไทม์&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            document.getElementById("labelAPlace").innerHTML = "ตำแหน่งที่ตั้ง&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
             document.getElementById("labelABattery").innerHTML = "แรงดันไฟฟ้าในปัจจุบัน";
             document.getElementById("labelASignal").innerHTML = "ความแรงของสัญญาณ";
             document.getElementById("labelTask").innerHTML = "คิวงาน";
             document.getElementById("labelTStartStation").innerHTML = "<nobr>สถานีต้นทาง</nobr>";
             document.getElementById("labelTNotificationStation").innerHTML = "<nobr>สถานีแจ้งเตือน</nobr>";
-            document.getElementById("labelTTerminalStation").innerHTML = "<nobr>เทอร์มินัล</nobr>";
+            document.getElementById("labelTTerminalStation").innerHTML = "<nobr>แผนกสุดท้าย</nobr>";
+            document.getElementById("labelAWorkTotal").innerHTML = "ชั่วโมงการทำงานทั้งหมด";
+            document.getElementById("labelAOpenTotal").innerHTML = "ชั่วโมงเปิดเครื่องทั้งหมด";
+            document.getElementById("labelARate").innerHTML = "อัตราการใช้";
+            document.getElementById("labelATaskTotal").innerHTML = "จำนวนงานสะสม";
             document.getElementById("labelStartStation").innerHTML = "สถานีต้นทาง";
             document.getElementById("labelNotificationStation").innerHTML = "สถานีแจ้งเตือน";
             document.getElementById("labelAnalysis").innerHTML = "การวิเคราะห์ผลประโยชน์";
             document.getElementById("labelMessage").innerHTML = "ข้อความระบบ:";
             document.getElementById("labelSendStartStation").innerHTML = "สถานีต้นทาง:";
             document.getElementById("labelSendNotificationStation").innerHTML = "สถานีแจ้งเตือน:";
-            document.getElementById("PCB測試").innerHTML = "<nobr>PCB測試</nobr>";
-            document.getElementById("PCB外線").innerHTML = "<nobr>PCB外線</nobr>";
+            document.getElementById("PCB測試").innerHTML = "<nobr>การทดสอบPCB(เชอร์ซื่อ)</nobr>";
+            document.getElementById("PCB外線").innerHTML = "<nobr>เส้นนอกPCB(ไหว้เซี้ยน)</nobr>";
             document.getElementById("FQC").innerHTML = "<nobr>FQC</nobr>";
             document.getElementById("FVI").innerHTML = "<nobr>FVI</nobr>";
-            document.getElementById("Routing").innerHTML = "<nobr>Routing</nobr>";
+            document.getElementById("Routing").innerHTML = "<nobr>Routing(รูต้า)</nobr>";
             document.getElementById("BGA整面C").innerHTML = "<nobr>BGAเจินเมี้ยนC</nobr>";
             document.getElementById("PCB外AOI").innerHTML = "<nobr>AOIนอกPCB</nobr>";
             document.getElementById("PCB噴塗").innerHTML = "<nobr>การฉีดพ่น(เผินถู)PCB</nobr>";
@@ -678,6 +686,10 @@ function changeLanguage(lan) {
             document.getElementById("labelTStartStation").innerHTML = "<nobr>出發站</nobr>";
             document.getElementById("labelTNotificationStation").innerHTML = "<nobr>通知站</nobr>";
             document.getElementById("labelTTerminalStation").innerHTML = "<nobr>終點站</nobr>";
+            document.getElementById("labelAWorkTotal").innerHTML = "總工作時數";
+            document.getElementById("labelAOpenTotal").innerHTML = "總開機時數";
+            document.getElementById("labelARate").innerHTML = "稼動率";
+            document.getElementById("labelATaskTotal").innerHTML = "累積任務數";
             document.getElementById("labelStartStation").innerHTML = "出發站";
             document.getElementById("labelNotificationStation").innerHTML = "通知站";
             document.getElementById("labelAnalysis").innerHTML = "效益分析";

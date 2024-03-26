@@ -217,10 +217,10 @@
                                             <table class="table table-borderless">
                                                 <thead>
                                                 <tr>
-                                                    <th>總工作時數</th>
-                                                    <th>總開機時數</th>
-                                                    <th>稼動率</th>
-                                                    <th>累積任務數</th>
+                                                    <th id="labelAWorkTotal">總工作時數</th>
+                                                    <th id="labelAOpenTotal">總開機時數</th>
+                                                    <th id="labelARate">稼動率</th>
+                                                    <th id="labelATaskTotal">累積任務數</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -278,7 +278,7 @@
                                 <div class="row">
                                     <div class="col-10" style="padding-left: 4%;display: flex;align-items: center;">
                                         <label id="labelMessage">系統訊息:</label>
-                                        <label id="message">無異常</label>
+                                        <label id="message"></label>
                                     </div>
                                     <div class="col-2" style="padding-right: 5.5%;">
                                         <a href="agv/message">
