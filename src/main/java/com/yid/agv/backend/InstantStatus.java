@@ -44,6 +44,8 @@ public class InstantStatus {
     private int LOW_BATTERY_DURATION;
     @Value("${caller.offline_duration}")
     private int CALLER_OFFLINE_DURATION;
+    @Value("${agv.task_exception_option}")
+    private int TASK_EXCEPTION_OPTION;
     @Autowired
     private AGVIdDao agvIdDao;
     @Autowired
@@ -97,6 +99,7 @@ public class InstantStatus {
         for (int i = 1; i <= 15; i++) {
             callerStationStatusMap.put(i, 0);
         }
+        System.out.println(LOW_BATTERY);
     }
 
     @Scheduled(fixedRate = 1000) // 每秒執行
@@ -257,6 +260,9 @@ public class InstantStatus {
     }
 
     private void handleFailedTask(AgvStatus agvStatus){
+        if (!iTask && !iStandbyTask) {
+            return;
+        }
         agvStatus.setTask("任務執行失敗");
         if (!iStandbyTask){
             if(reDispatch < 3) {
@@ -267,7 +273,9 @@ public class InstantStatus {
                     reDispatch++;
                 }
             } else if (reDispatch == 3) {
-                ProcessTasks.failedTask(taskQueue, notificationDao, taskDao);
+                ProcessTasks.failedTask(taskQueue, taskDao);
+                log.warn("任務執行三次皆失敗，已取消任務");
+                notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, NotificationDao.Status.FAILED_EXECUTION_TASK_THREE_TIMES);
                 reDispatch=0;
                 iTask = false;
             }
@@ -289,7 +297,7 @@ public class InstantStatus {
     }
 
     @Async
-    private void doReDispatch(String place){
+    void doReDispatch(String place){
         reDispatchExecutor.execute(() ->
                 ProcessTasks.dispatchTaskToAGV(notificationDao, taskQueue.getTaskByTaskNumber(taskQueue.getNowTaskNumber()), place, 1)
         );
@@ -310,11 +318,19 @@ public class InstantStatus {
             // 任務完成(task完成)
             if (!iStandbyTask) {
                 QTask cTask = taskQueue.getTaskByTaskNumber(taskQueue.getNowTaskNumber());
-                callerStationStatus[cTask.getNotificationStationId()-1] = true;
-                callerStationStatusMap.put(cTask.getTerminalStationId(), cTask.getNotificationStationId());
-                ProcessTasks.completedTask(taskQueue, analysisDao);
-                // 這邊可以判斷是否還有任務，直接派回待命點，執行效率會更好，但寫在ProcessTasks邏輯較正確，目前實作在ProcessTasks。
-                iTask = false;
+                if (agvStatus.getPlace().equals(stationDao.getStationTagById(cTask.getTerminalStationId()))){
+                    callerStationStatus[cTask.getNotificationStationId()-1] = true;
+                    callerStationStatusMap.put(cTask.getTerminalStationId(), cTask.getNotificationStationId());
+                    ProcessTasks.completedTask(taskQueue, analysisDao);
+                    iTask = false;
+                } else {
+                    // 刪除任務或重派任務
+                    switch (TASK_EXCEPTION_OPTION){
+                        case 0 -> ProcessTasks.failedTask(taskQueue, taskDao);
+                        case 1 -> ProcessTasks.dispatchTaskToAGV(notificationDao, cTask, agvStatus.getPlace(), 0);
+                        default -> log.warn("TASK_EXCEPTION_OPTION值錯誤");
+                    }
+                }
             } else {
                 iTask = false;
                 iStandbyTask = false;
@@ -795,7 +811,7 @@ public class InstantStatus {
 
     private final int[] lastCaller = new int[14];
     @Async
-    private void doSendCaller(int id, int value){
+    void doSendCaller(int id, int value){
         if(lastCaller[id-1] != value) {
             log.info("Id: " + id +"  Value: " + value);
             if(id != 6 && id != 7 && id != 13 && id != 14 && value == 2){

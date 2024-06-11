@@ -178,7 +178,7 @@ function getIAlarm() {
                     alarmToggle=false;
                     const audio = document.createElement("audio");
                     // audio.src = baseUrl+"/audio/laser.mp3";
-                    audio.src = baseUrl+"/audio/alarm3.mp3";
+                    audio.src = baseUrl+"/audio/alarm3.m4a";
                     audio.play();
                 }else{
                     document.getElementById("messagebg").style.backgroundColor = "#FFFFFF";
@@ -215,12 +215,101 @@ function updateAgvStatus(data){  // 更新資料
             document.getElementById("agvOnlineStatus").style.display = "block";
             // 工作狀態
             if (data[i].status >=0 && data[i].status <= 13) {
-                document.getElementById("status").value = agvStatusDict[data[i].status];
+                let content;
+                switch(nowLanguage){
+                    case "thai":
+                        switch(agvStatusDict[data[i].status]){
+                            case "離線":
+                                content = "ออฟไลน์";
+                                break;
+                            case "連線":
+                                content = "เชื่อมต่อ";
+                                break;
+                            case "AGV 手動模式":
+                                content = "โหมดแมนนวล AGV";
+                                break;
+                            case "AGV 重新啟動":
+                                content = "รีสตาร์ท AGV";
+                                break;
+                            case "AGV 緊急停止":
+                                content = "AGV หยุดฉุกเฉิน";
+                                break;
+                            case "AGV 出軌":
+                                content = "AGV ตกราง";
+                                break;
+                            case "AGV 發生碰撞":
+                                content = "เอจีวีชนกัน";
+                                break;
+                            case "AGV 前有障礙":
+                                content = "มีสิ่งกีดขวางด้านหน้า AGV";
+                                break;
+                            case "AGV 轉向角度過大":
+                                content = "มุมบังคับเลี้ยว AGV ใหญ่เกินไป";
+                                break;
+                            case "AGV 卡號錯誤":
+                                content = "ข้อผิดพลาดหมายเลขบัตร AGV";
+                                break;
+                            case "AGV 未知卡號":
+                                content = "AGV ไม่ทราบหมายเลขบัตร";
+                                break;
+                            case "AGV 異常排除":
+                                content = "การแก้ไขปัญหาความผิดปกติของ AGV";
+                                break;
+                            case "AGV 感知器偵測異常":
+                                content = "เซ็นเซอร์ AGV ตรวจพบความผิดปกติ";
+                                break;
+                            case "AGV 充電異常":
+                                content = "ความผิดปกติของการชาร์จ AGV";
+                                break;
+                            case "讀取狀態錯誤":
+                                content = "ข้อผิดพลาดสถานะการอ่าน";
+                                break;
+                            case "任務執行失敗":
+                                content = "การดำเนินการงานล้มเหลว";
+                                break;
+                            case "任務執行三次皆失敗":
+                                content = "งานล้มเหลวสามครั้ง";
+                                break;
+                            case "發送任務失敗":
+                                content = "การส่งงานล้มเหลว";
+                                break;
+                            case "發送任務三次皆失敗":
+                                content = "ไม่สามารถส่งงานสามครั้ง";
+                                break;
+                            case "電池電量過低":
+                                content = "พลังงานแบตเตอรี่ต่ำเกินไป";
+                                break;
+                            case "caller離線超過20秒，請至現場排除問題":
+                                content = "ผู้โทรออฟไลน์นานกว่า 20 วินาที โปรดไปที่ไซต์เพื่อแก้ไขปัญหา";
+                                break;
+                            case "錯誤，任務起始站棧板離開。":
+                                content = "เกิดข้อผิดพลาด เหลือแท่นวางสถานีเริ่มต้นงาน";
+                                break;
+                            case "錯誤，任務終點站上有其他棧板。":
+                                content = "เกิดข้อผิดพลาด มีพาเลทอื่นๆ บนอาคารผู้โดยสารภารกิจ";
+                                break;
+                            default:
+                                content = agvStatusDict[data[i].status];
+                                break;
+                        }
+                        break;
+                    default:
+                        content = agvStatusDict[data[i].status];
+                        break;
+                }
+                document.getElementById("status").value = content;
             }else{
                 console.log("內容錯誤");
             }
             if(data[i].task === "" || data[i].task === undefined)
-                document.getElementById("task").value = "目前沒有任務";  // 目前任務
+                switch(nowLanguage){
+                    case "thai":
+                        document.getElementById("task").value = "ขณะนี้ไม่มีงานใดๆ";  // 目前任務
+                        break;
+                    default:
+                        document.getElementById("task").value = "目前沒有任務";  // 目前任務
+                        break;
+                }
             else 
                 document.getElementById("task").value = data[i].task;  // 目前任務
             document.getElementById("place").value = data[i].place;  // 目前位置
@@ -258,74 +347,75 @@ function demoPlace(){
 }
 
 const mapTagPositions = {
-    "1001": [91.5, 50], "1251": [91.5, 50], "1751": [91.5, 50],
+    "1001": [91.5, 50],
     "1002": [92.5, 50],
-    "1003": [91.5, 48], "1253": [91.5, 48], "1753": [91.5, 48],
+    "1003": [91.5, 48],
     "1004": [92.5, 48],
-    "1005": [91.5, 46], "1255": [91.5, 46], "1755": [91.5, 46],
+    "1005": [91.5, 46],
     "1006": [92.5, 46],
-    "1007": [91.5, 44], "1257": [91.5, 44], "1757": [91.5, 44],
+    "1007": [91.5, 44],
     "1008": [92.5, 44],
-    "1009": [91.5, 42], "1259": [91.5, 42], "1759": [91.5, 42],
+    "1009": [91.5, 42],
     "1010": [92.5, 42],
-    "1011": [91.5, 40], "1261": [91.5, 40], "1761": [91.5, 40],
+    "1011": [91.5, 40],
     "1012": [92.5, 40],
 
-    "1263": [91.5, 37], "1763": [91.5, 37],
-    "1014": [90, 34], "1514": [90, 34],
-    "1015": [85, 34], "1515": [85, 34],
-    "1016": [80, 34], "1516": [80, 34],
-    "1017": [76, 34], "1517": [76, 34],
+    "1013": [91.5, 37],
+    "1014": [90, 34],
+    "1015": [85, 34],
+    "1016": [80, 34],
+    "1017": [76, 34],
 
-    "1018": [70, 25], "1518": [70, 25],
-    "1019": [67, 25], "1519": [67, 25],
-    "1020": [64, 25], "1520": [64, 25],
-    "1021": [60, 25], "1521": [60, 25],
-    "1022": [57, 25], "1522": [57, 25],
-    "1023": [53, 25], "1523": [53, 25],
-    "1024": [50, 25], "1524": [50, 25],
-    "1025": [47, 25], "1525": [47, 25],
-    "1026": [43, 25], "1526": [43, 25],
-    "1027": [40, 25], "1527": [40, 25],
+    "1018": [70, 25],
+    "1019": [67, 25],
+    "1020": [64, 25],
+    "1021": [60, 25],
+    "1022": [57, 25],
+    "1023": [53, 25],
+    "1024": [50, 25],
+    "1025": [47, 25],
+    "1026": [43, 25],
+    "1027": [40, 25],
     
-    "1278": [38, 20], "1778": [38, 20],
-    "1279": [38, 12], "1779": [38, 12],
+    "1028": [38, 20],
+    "1029": [38, 12],
 
-    "1030": [36, 6], "1530": [36, 6],
-    "1031": [33, 6], "1531": [33, 6],
-    "1032": [29, 6], "1532": [29, 6],
-    "1033": [26, 6], "1533": [26, 6],
-    "1034": [22, 6], "1534": [22, 6],
-    "1035": [19, 6], "1535": [19, 6],
-    "1036": [16, 6], "1536": [16, 6],
-    "1037": [13, 6], "1537": [13, 6],
-    "1038": [9, 6], "1538": [9, 6],
-    "1039": [6, 6], "1539": [6, 6],
+    "1030": [36, 6],
+    "1031": [33, 6],
+    "1032": [29, 6],
+    "1033": [26, 6],
+    "1034": [22, 6],
+    "1035": [19, 6],
+    "1036": [16, 6],
+    "1037": [13, 6],
+    "1038": [9, 6],
+    "1039": [6, 6],
 
-    "1290": [4.3, 10], "1790": [4.3, 10],
-    "1291": [4.3, 23], "1791": [4.3, 23],
-    "1292": [4.3, 37], "1792": [4.3, 37],
-    "1293": [4.3, 50], "1793": [4.3, 50],
+    "1040": [4.3, 10],
+    "1041": [4.3, 23],
+    "1042": [4.3, 37],
+    "1043": [4.3, 50],
 
-    "1044": [5, 65], "1294": [5, 65], "1794": [5, 65],
+    "1044": [5, 65],
     "1045": [6, 65],
-    "1046": [5, 67], "1296": [5, 67], "1796": [5, 67],
+    "1046": [5, 67],
     "1047": [6, 67],
-    "1048": [5, 69], "1298": [5, 69], "1798": [5, 69],
+    "1048": [5, 69],
     "1049": [6, 69],
-    "1050": [5, 71], "1300": [5, 71], "1800": [5, 71],
+    "1050": [5, 71],
     "1051": [6, 71],
-    "1052": [5, 73], "1302": [5, 73], "1802": [5, 73],
+    "1052": [5, 73],
     "1053": [6, 73],
     "1054": [5, 76],
 
 }
 
 function updateAGVPositions(tag) {
+    let realTag = String(Math.floor(((Number(tag) % 1000) % 250) + Math.floor(Number(tag) / 1000) * 1000));
     var map = document.getElementById("map");
     var mapWidth = map.clientWidth;
     var mapHeight = map.clientHeight;
-    var place = mapTagPositions[tag];
+    var place = mapTagPositions[realTag];
 
     document.getElementById("agv_car").style.transform = "translate(" + ((place[0]/100) * mapWidth) +"px, " + ((place[1]/100) * mapHeight) + "px)";
 }
@@ -339,13 +429,12 @@ function updateTasks(data){
         if(data.length>0){
             var taskHTML="";
             for(let i=0;i<data.length;i++){
+                let notificationstation = nowLanguage == 'thai' ? notificationDictThai[data[i].notificationStationId] : notificationDict[data[i].notificationStationId];
                 if (data[i].status != 0){
-                    let notificationstation = nowLanguage == 'thai' ? notificationDictThai[data[i].notificationStationId] : notificationDict[data[i].notificationStationId];
                     taskHTML += '<div class="row taskcontent"><div class="col-3">'+stationsDict[data[i].startStationId]+'</div>'+
                                                             '<div class="col-4">'+notificationstation+'</div><div class="col-3">'+stationsDict[data[i].terminalStationId]+
                                                             '</div><div class="col-2 removebtncol"></div></div>';
                 }else{
-                    let notificationstation = nowLanguage == 'thai' ? notificationDictThai[data[i].notificationStationId] : notificationDict[data[i].notificationStationId];
                     taskHTML += '<div class="row taskcontent"><div class="col-3">'+stationsDict[data[i].startStationId]+'</div>'+
                                                         '<div class="col-4"><nobr>'+notificationstation+'</nobr></div><div class="col-3">'+
                                                         stationsDict[data[i].terminalStationId]+'</div><div class="col-2 removebtncol">'+
@@ -374,8 +463,8 @@ function updateTasks(data){
 function updateCompletedTasks(data){
     for(let i=1;i<=15;i++){
         if(data[i] != 0){
-            console.log("gg");
-            document.getElementById(stationsDict[String(i)]+"b").innerHTML = notificationDict[data[i]];
+            let notificationstation = nowLanguage == 'thai' ? notificationDictThai[data[i]] : notificationDict[data[i]];
+            document.getElementById(stationsDict[String(i)]+"b").innerHTML = notificationstation;
         }
     }
 }
@@ -567,6 +656,8 @@ function setNotification(no) {
 }
 // 紀錄確認列與發送
 function subm(){
+    var check = confirm('是否確認發送從格位 ' + document.getElementById('ststationText').value + ' 到' + document.getElementById('notificationstationText').value + '通知站的任務？');
+    if(!check) return;
     var now = new Date();
     var nowTime = ""+now.getFullYear()+("0"+(now.getMonth()+1)).slice(-2)+("0"+now.getDate()).slice(-2)+
                     ("0"+now.getHours()).slice(-2)+("0"+now.getMinutes()).slice(-2)+("0"+now.getSeconds()).slice(-2);

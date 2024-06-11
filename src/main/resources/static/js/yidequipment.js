@@ -134,9 +134,10 @@ function getIAlarm() {
     xhr.onload = function(){
         if(xhr.status == 200){
             var data = Number(this.responseText);
-            if(data === 0){
-                getEquipmentAlarm();
-            }else if(data === 1){
+            if(data === 0) {
+                // Caller 離線要不要叫
+               // getEquipmentAlarm();
+            } else if(data === 1){
                 equipmentAlarmProgress();
             }
         }
@@ -174,7 +175,7 @@ function equipmentAlarmProgress(){
         alarmToggle=false;
         const audio = document.createElement("audio");
         // audio.src = baseUrl+"/audio/laser.mp3";
-        audio.src = baseUrl+"/audio/alarm3.mp3";
+        audio.src = baseUrl+"/audio/alarm3.m4a";
         audio.play();
     }else{
         document.getElementById("messagebg").style.backgroundColor = "#FFFFFF";

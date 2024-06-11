@@ -62,7 +62,7 @@ public class TaskService {
             ||notification.equals("")
             ||mode.equals("")) return false;
 
-        if (stationManager.getStationStatus(Integer.parseInt(start)).getStatus() != 1)
+        if (stationManager.getStationStatus(Integer.parseInt(start)).getStatus() != 1 || taskQueue.getBookedStationStatusByStation(Integer.parseInt(start)) != 0)
             return false;
         // getTerminal if not, return false
         Integer terminal = taskQueue.getTerminalByNotification(notification);

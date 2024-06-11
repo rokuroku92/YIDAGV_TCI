@@ -30,4 +30,9 @@ public class StationDaoImpl implements StationDao {
         String sql = "SELECT * FROM `notification_station_data`";
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(NotificationStation.class));
     }
+    @Override
+    public String getStationTagById(int id){
+        String sql = "SELECT `tag` FROM `station_data` WHERE `id` = ?";
+        return jdbcTemplate.queryForObject(sql, String.class, id);
+    }
 }

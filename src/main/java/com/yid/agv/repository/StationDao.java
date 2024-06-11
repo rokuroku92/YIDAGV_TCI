@@ -11,4 +11,5 @@ public interface StationDao {
     List<Station> queryStations();
     List<String> queryStandbyTags();
     List<NotificationStation> queryNotificationStations();
+    String getStationTagById(int id);
 }

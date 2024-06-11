@@ -2,6 +2,14 @@ var nowLanguage=localStorage.getItem("nowLanguage");
 
 window.onload = function(){
     getMessage();
+    switch(nowLanguage){
+        case "thai":
+            document.getElementById("homeBTN").value = "กลับสู่หน้าจอหลัก";  // 目前任務
+            break;
+        default:
+            document.getElementById("homeBTN").value = "返回主畫面";  // 目前任務
+            break;
+    }
 };
 
 function getMessage() {

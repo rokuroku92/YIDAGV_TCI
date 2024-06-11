@@ -103,7 +103,9 @@ public class ProcessTasks {
 //                    if(nowPlace.equals("1001")) nowPlace = "1501";
                     // Dispatch the task to the AGV control system
                     String url;
-                    if (task.getStartStationId() == 16 || task.getStartStationId() == 17 || mode == 2){
+                    if (task.getStartStationId() == 16 || task.getStartStationId() == 17
+                            || mode == 2
+                            || InstantStatus.taskProgress == InstantStatus.TaskProgress.PRE_TERMINAL_STATION){
                         url = agvUrl + "/task0=" + task.getAgvId() + "&" + task.getModeId() + "&" + nowPlace +
                                 "&" + stationIdTagMap.get(task.getTerminalStationId());
                     } else {
@@ -169,9 +171,7 @@ public class ProcessTasks {
         return "FailedDispatch";
     }
 
-    public static void failedTask(TaskQueue taskQueue, NotificationDao notificationDao, TaskDao taskDao){
-        log.warn("任務執行三次皆失敗，已取消任務");
-        notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, NotificationDao.Status.FAILED_EXECUTION_TASK_THREE_TIMES);
+    public static void failedTask(TaskQueue taskQueue, TaskDao taskDao){
         taskDao.cancelTask(taskQueue.getNowTaskNumber());
         taskQueue.removeTaskByTaskNumber(taskQueue.getNowTaskNumber());
         taskQueue.setNowTaskNumber("");
@@ -188,8 +188,14 @@ public class ProcessTasks {
         taskQueue.setNowTaskNumber("");
     }
 
-    private static final int[] stationTag1 = new int[]{1002, 1004, 1006, 1008, 1010, 1012};
-    private static final int[] stationTag2 = new int[]{1045, 1047, 1049, 1051, 1053, 1054};
+    private static final int[] stationTag1 = new int[]{1252, 1254, 1256, 1258, 1260,
+            1001, 1002, 1003, 1004, 1005, 1006,
+            1007, 1008, 1009, 1010, 1011, 1012,
+            1751, 1753, 1755, 1757, 1759, 1761,
+            1253, 1255, 1257, 1259, 1261, 1501,
+            1502, 1503, 1504, 1505, 1506, 1507,
+            1508, 1509, 1510, 1511, 1512};
+    private static final int[] stationTag2 = new int[]{1795, 1797, 1799, 1801, 1803, 1054};
     public static void goStandbyTaskByAgvId(NotificationDao notificationDao, TaskDao taskDao, int agvId, AgvStatus agvStatus, boolean lowBattery){
         int place = Integer.parseInt(agvStatus.getPlace());
         int standbyStation = -1;
