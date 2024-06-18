@@ -467,8 +467,8 @@ public class InstantStatus {
         }
 
         for (int i = 0; i < 14; i++) {
-            if(!Objects.equals(callerValue[i].split(",")[1], "-1")){
-                if(!iCallerConn[i]){
+            if(!Objects.equals(callerValue[i].split(",")[1], "-1")) {
+                if(!iCallerConn[i]) {
                     iCallerConn[i] = true;
                     homePageService.setEquipmentIAlarm(i, 0);
                     switch (i){
@@ -536,7 +536,7 @@ public class InstantStatus {
         // 讀取叫車器資料(寫死)，只讀6, 7, 13, 14 叫車器
         int callerIndex = 5;
         boolean[] dataValue;
-        if(iCallerConn[5]){
+        if(iCallerConn[5]) {
             dataValue = parseCallerStatus(Long.parseLong(callerValue[5].split(",")[1]));
             for (int j = 0; j < 4; j++) {
                 notBookedStationStatuses[callerIndex] = new StationStatus();
@@ -609,7 +609,7 @@ public class InstantStatus {
             int processBookedStation = taskQueue.getBookedStationStatusByStation(i+1);
             int notBookedStatus = notBookedStationStatuses[i].getStatus();
             StationStatus status = stationManager.getStationStatus(i+1);
-            if(processBookedStation == 1 && notBookedStatus == 0){
+            if(processBookedStation == 1 && notBookedStatus == 0) {
                 // 錯誤，任務起始站棧板離開。
                 log.warn("錯誤，任務起始站棧板離開。");
                 notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, PALLET_EXCEPTION_LEAVE);
@@ -623,6 +623,20 @@ public class InstantStatus {
                 notificationDao.insertMessage(NotificationDao.Title.AGV_SYSTEM, PALLET_EXCEPTION_OTHER_CASE);
                 status.setStatus(StationStatus.Status.UNEXPECTED_PALLET);
                 callerStatus[i] = true;  // callStationAlarm
+
+                // 若 AGV 在移動中則需停到大站入口點
+                AgvStatus agvStatus = agvManager.getAgvStatus(1);
+                if (agvStatus.getStatus() == 2) {
+                    if (i >= 5 && i <= 9) { // 第二大站
+                        if (agvStatus.getPlace().equals("1513") || agvStatus.getPlace().equals("1511")) {
+                            stopAgvCmd();
+                        }
+                    } else if (i >= 10) { // 第三大站
+                        if (agvStatus.getPlace().equals("1043") || agvStatus.getPlace().equals("1044")) {
+                            stopAgvCmd();
+                        }
+                    }
+                }
             }else if(processBookedStation == 2 && notBookedStatus == 0){
                 status.setStatus(StationStatus.Status.BOOKING);
             }else if(processBookedStation == 4 && notBookedStatus == 0){
@@ -717,6 +731,17 @@ public class InstantStatus {
             if(webpageContent.trim().equals("OK")) {
                 fixAgvTagErrorCompleted = true;
             }
+        } catch (IOException | InterruptedException ignored) {
+        }
+    }
+
+    private void stopAgvCmd() {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(agvUrl + "/cmd=1&QJ0133X"))
+                .GET()
+                .build();
+        try {
+            HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         } catch (IOException | InterruptedException ignored) {
         }
     }
