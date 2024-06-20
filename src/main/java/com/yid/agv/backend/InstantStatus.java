@@ -172,7 +172,8 @@ public class InstantStatus {
         // data[1] 位置
         agvStatus.setPlace(data[1].trim());
         // data[2] 訊號
-        agvStatus.setSignal((int)Math.ceil(Integer.parseInt(data[2].trim()) / 120.0 * 100));
+//        agvStatus.setSignal((int)Math.ceil(Integer.parseInt(data[2].trim()) / 120.0 * 100));
+        agvStatus.setSignal(Integer.parseInt(data[2].trim()));
         // data[3] 電量
         agvStatus.setBattery(Integer.parseInt(data[3].trim()));
         if(agvStatus.getBattery()<LOW_BATTERY){
