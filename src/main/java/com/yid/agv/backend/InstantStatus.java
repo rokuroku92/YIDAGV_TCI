@@ -835,9 +835,18 @@ public class InstantStatus {
     }
 
 
+    private int checkId8CallerDelay = 0;
     private final int[] lastCaller = new int[14];
     @Async
-    void doSendCaller(int id, int value){
+    void doSendCaller(int id, int value) {
+        if (id == 8 && value == 2) {
+            if (checkId8CallerDelay < 30) {
+                checkId8CallerDelay++;
+                return;
+            } else {
+                checkId8CallerDelay = 0;
+            }
+        }
         if(lastCaller[id-1] != value) {
             log.info("Id: " + id +"  Value: " + value);
             if(id != 6 && id != 7 && id != 13 && id != 14 && value == 2){
