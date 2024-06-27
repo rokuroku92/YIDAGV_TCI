@@ -139,4 +139,9 @@ function addMessage(data){
     document.getElementById("notification").innerHTML = messageHTML;
 }
 
-
+async function refreshData(){
+    const selectDate = document.getElementById('selectDate').value.replaceAll("-","");
+    const response = await fetch(`${baseUrl}/api/homepage/notifications/byDate?date=${selectDate}`);
+    const data = await response.json();
+    addMessage(data);
+}

@@ -1,77 +1,114 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-		<title>元創智動AGV|系統訊息</title>
-		<script>
-            var baseUrl;
-            if (window.location.href.startsWith('http://127.0.0.1:5500')) {
-                // Live Server 环境
-                console.log('Running on Live Server');
-                baseUrl = "http://localhost:8080/YIDAGV";
-                var baseHref = document.createElement("base");
-                baseHref.href = "http://127.0.0.1:5500/static/";
-                document.head.appendChild(baseHref);
 
-				document.addEventListener("DOMContentLoaded", function() {
-					var _a_ = document.querySelectorAll("a");
-					_a_.forEach(a => {
-						var parts = a.href.split("/");
-						var newHref = parts[parts.length-1] !== "" ? parts[parts.length-1]+".html" : "agv.html";
-						a.href = newHref;
-					});
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>元創智動AGV|系統訊息</title>
+	<script>
+		var baseUrl;
+		if (window.location.href.startsWith('http://127.0.0.1:5500')) {
+			// Live Server 环境
+			console.log('Running on Live Server');
+			baseUrl = "http://localhost:8080/YIDAGV";
+			var baseHref = document.createElement("base");
+			baseHref.href = "http://127.0.0.1:5500/static/";
+			document.head.appendChild(baseHref);
+
+			document.addEventListener("DOMContentLoaded", function () {
+				var _a_ = document.querySelectorAll("a");
+				_a_.forEach(a => {
+					var parts = a.href.split("/");
+					var newHref = parts[parts.length - 1] !== "" ? parts[parts.length - 1] + ".html" : "agv.html";
+					a.href = newHref;
 				});
-            } else {
-                // Spring Boot 环境 window.location.href.startsWith('http://localhost:8080/YIDAGV')
-                console.log('Running on Spring Boot');
-                baseUrl = window.location.origin + "/YIDAGV";
-                var baseHref = document.createElement("base");
-                baseHref.href = "/YIDAGV/";
-                document.head.appendChild(baseHref);
-            }
-        </script>
-		<link rel="icon" type="image/ico" href="image/favicon.ico">
-		<!-- Bootstrap core CSS -->
-		<link href="css/bootstrap.min.css" rel="stylesheet">
-		<link href="css/yid-basic.css" rel="stylesheet">
-		<link href="css/analysis.css" rel="stylesheet">
-		<link href="css/message.css" rel="stylesheet">
+			});
+		} else {
+			// Spring Boot 环境 window.location.href.startsWith('http://localhost:8080/YIDAGV')
+			console.log('Running on Spring Boot');
+			baseUrl = window.location.origin + "/YIDAGV";
+			var baseHref = document.createElement("base");
+			baseHref.href = "/YIDAGV/";
+			document.head.appendChild(baseHref);
+		}
+	</script>
+	<link rel="icon" type="image/ico" href="image/favicon.ico">
+	<!-- Bootstrap core CSS -->
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/yid-basic.css" rel="stylesheet">
+	<link href="css/analysis.css" rel="stylesheet">
+	<link href="css/message.css" rel="stylesheet">
 
-		<script src="js/jquery-3.3.1.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<script src="js/bootstrap.bundle.min.js"></script>
-		<script src="js/popper.min.js"></script>
-		<script src="js/bootstrap-table.min.js"></script>
-		<script src="js/message.js"></script>
-	</head>
-	<body style="padding: 0px;line-height: 10px;">
-		<div class="row Title">
-			<div class="col-4"></div>
-			<div class="col-4">
-                <img src="image/yidlogo.svg" alt="SVG Image" style="width: 10%;">
-                <img src="image/yidlogotext.svg" alt="SVG Image" style="width: 85%;">
-            </div>
-            <div class="col-4" style="position: relative;">
-                <img style="position: absolute;bottom: 0;right: 0;max-height: 45%;" src="image/yidwww.svg" alt="image error">
-            </div>
+	<script src="js/jquery-3.3.1.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/bootstrap.bundle.min.js"></script>
+	<script src="js/popper.min.js"></script>
+	<script src="js/bootstrap-table.min.js"></script>
+	<script src="js/message.js"></script>
+</head>
+
+<body style="padding: 0px;line-height: 10px;">
+	<div class="row Title">
+		<div class="col-4"></div>
+		<div class="col-4">
+			<img src="image/yidlogo.svg" alt="SVG Image" style="width: 10%;">
+			<img src="image/yidlogotext.svg" alt="SVG Image" style="width: 85%;">
 		</div>
-		<hr style="border: none;height: 10px;background-color: #93B955;margin: 0px;margin-top: 3px;opacity: 1;">
-		<div class="container" style="padding: 20px;padding-left: 40px;padding-right: 40px;padding-bottom: 0px;">
-			<div class="row">
-				<div class="col">
-					<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#93B955" class="bi bi-chat-right-text-fill" viewBox="0 0 16 16">
-						<path d="M16 2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9.586a1 1 0 0 1 .707.293l2.853 2.853a.5.5 0 0 0 .854-.353V2zM3.5 3h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1zm0 2.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1zm0 2.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z"/>
-					</svg>
-					<label>系統訊息</label>
-					<a href="agv/" style=" float: right">
-						<input id="homeBTN" type="button" class="btn btn-yid" value="返回主畫面">
-					</a>
+		<div class="col-4" style="position: relative;">
+			<img style="position: absolute;bottom: 0;right: 0;max-height: 45%;" src="image/yidwww.svg"
+				alt="image error">
+		</div>
+	</div>
+	<hr style="border: none;height: 10px;background-color: #93B955;margin: 0px;margin-top: 3px;opacity: 1;">
+	<div class="container" style="padding: 20px;padding-left: 40px;padding-right: 40px;padding-bottom: 0px;">
+		<div class="row">
+			<div class="col" style="display: flex;align-items: center;">
+				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#93B955"
+					class="bi bi-chat-right-text-fill" viewBox="0 0 16 16">
+					<path
+						d="M16 2a2 2 0 0 0-2-2H2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9.586a1 1 0 0 1 .707.293l2.853 2.853a.5.5 0 0 0 .854-.353V2zM3.5 3h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1zm0 2.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1 0-1zm0 2.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1z" />
+				</svg>
+				<label>系統訊息</label>
+				<button type="button" class="btn btn-secondary" style="margin-left: 1em;" data-bs-toggle="modal"
+					data-bs-target="#changeDate">選擇日期</button>
+				<!-- changeDate Modal -->
+				<div class="modal fade" id="changeDate" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+					aria-labelledby="changeDateLabel" aria-hidden="true">
+					<div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="changeDateLabel">選擇日期</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal"
+									aria-label="Close"></button>
+							</div>
+							<div class="modal-body">
+								<div class="row">
+									<div class="col-3" style="display: flex;align-items: center;justify-content: center;">
+										<label for="selectDate">欲查詢日期</label>
+									</div>
+									<div class="col-9">
+										<input id="selectDate" class="form-control" type="date" />
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+								<button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+									onclick="refreshData()">確定</button>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-			<div class="row" style=" justify-content: center">
-				<div class="col-10" id="notification">
-					<!--系統訊息-->
-					<!-- <div class="row">
+			<div class="col">
+				<a href="agv/" style=" float: right">
+					<input id="homeBTN" type="button" class="btn btn-yid" value="返回主畫面">
+				</a>
+			</div>
+		</div>
+		<div class="row" style=" justify-content: center">
+			<div class="col-10" id="notification">
+				<!--系統訊息-->
+				<!-- <div class="row">
 						<div class="col message">
 							<div class="nfStatus info"></div>
 							<div class="messageContentDiv">
@@ -132,13 +169,14 @@
 						</div>
 					</div> -->
 
-				</div>
 			</div>
 		</div>
-		<footer style="text-align: center">
-			元創智動股份有限公司版權所有  TEL:02-26087894 Email:sales@yid.com.tw
-		</footer>
-		
+	</div>
+	<footer style="text-align: center">
+		元創智動股份有限公司版權所有 TEL:02-26087894 Email:sales@yid.com.tw
+	</footer>
 
-	</body>
+
+</body>
+
 </html>

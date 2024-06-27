@@ -91,7 +91,13 @@ public class ApiController {
         return gson.toJson(list);
     }
 
-    @GetMapping(value = "/homepage/notification/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/homepage/notifications/byDate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String getNotificationsByDate(@RequestParam("date") String date){
+        List<Notification> list = homePageService.queryNotificationsByDate(date);
+        return gson.toJson(list);
+    }
+
+    @GetMapping(value = "/homepage/notifications/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public String getAllNotifications(){
         List<Notification> list = homePageService.queryAllNotifications();
         return gson.toJson(list);
