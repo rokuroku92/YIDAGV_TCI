@@ -8,6 +8,7 @@ import com.yid.agv.model.QTask;
 import com.yid.agv.model.Station;
 import com.yid.agv.model.StationStatus;
 import com.yid.agv.repository.*;
+import com.yid.agv.service.EventLoggerService;
 import com.yid.agv.service.HomePageService;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -64,6 +65,8 @@ public class InstantStatus {
     private StationManager stationManager;
     @Autowired
     private HomePageService homePageService;
+    @Autowired
+    private EventLoggerService eventLoggerService;
     @Autowired
     @Qualifier("threadPoolTaskExecutorOfReDispatch")
     private ThreadPoolTaskExecutor reDispatchExecutor;  // 專門給dispatchTaskToAGV
@@ -247,6 +250,7 @@ public class InstantStatus {
                 switch (taskProgress){
                     case PRE_START_STATION -> tagErrorDispatch(agvStatus.getPlace(), 1);
                     case PRE_TERMINAL_STATION -> tagErrorDispatch(agvStatus.getPlace(), 2);
+                    default -> tagErrorDispatch(agvStatus.getPlace(), 2);
                 }
             }
             lastTaskBuffer[i] = true;
@@ -291,14 +295,14 @@ public class InstantStatus {
     private boolean tagErrorDispatchCompleted;
     private void tagErrorDispatch(String place, int mode){
         String result = ProcessTasks.dispatchTaskToAGV(notificationDao, taskQueue.getTaskByTaskNumber(taskQueue.getNowTaskNumber()), place, mode);
-        if(result.equals("OK")) {
+        if (result.equals("OK")) {
             log.info("reDispatch!...");
             tagErrorDispatchCompleted = true;
         }
     }
 
     @Async
-    void doReDispatch(String place){
+    void doReDispatch(String place) {
         reDispatchExecutor.execute(() ->
                 ProcessTasks.dispatchTaskToAGV(notificationDao, taskQueue.getTaskByTaskNumber(taskQueue.getNowTaskNumber()), place, 1)
         );
@@ -323,6 +327,7 @@ public class InstantStatus {
                     callerStationStatus[cTask.getNotificationStationId()-1] = true;
                     callerStationStatusMap.put(cTask.getTerminalStationId(), cTask.getNotificationStationId());
                     ProcessTasks.completedTask(taskQueue, analysisDao);
+                    agvStatus.setCompletedTaskCount(agvStatus.getCompletedTaskCount() + 1);
                     iTask = false;
                 } else {
                     // 刪除任務或重派任務
@@ -403,6 +408,10 @@ public class InstantStatus {
             }
             case 5 -> {
                 // AGV 轉向角度過大
+                if (agvStatus.getStatus() != 9) {
+                    eventLoggerService.logEvent(i+1, "Motor Driver Error",
+                            agvStatus.getBattery(), agvStatus.getPlace());
+                }
                 agvStatus.setStatus(AgvStatus.Status.EXCESSIVE_TURN_ANGLE);
                 notificationDao.insertMessage(agvTitle, NotificationDao.Status.EXCESSIVE_TURN_ANGLE);
                 homePageService.setIAlarm(0);
@@ -472,7 +481,7 @@ public class InstantStatus {
                 if(!iCallerConn[i]) {
                     iCallerConn[i] = true;
                     homePageService.setEquipmentIAlarm(i, 0);
-                    switch (i){
+                    switch (i) {
                         case 0 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_1, NotificationDao.Status.ONLINE);
                         case 1 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_2, NotificationDao.Status.ONLINE);
                         case 2 -> notificationDao.insertMessage(NotificationDao.Title.CALLER_3, NotificationDao.Status.ONLINE);

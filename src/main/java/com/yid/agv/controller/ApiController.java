@@ -159,11 +159,26 @@ public class ApiController {
         }
         return gson.toJson(list);
     }
+
+    @RequestMapping(value = "/analysis/batteryTask", produces = MediaType.APPLICATION_JSON_VALUE)
+    public String queryBatteryTaskByAGVAndDate(@RequestParam("date") String date, @RequestParam("agvId") Integer agvId){
+        // value=202212, 202301, recently
+        if (date.equals("recently")) {
+            return gson.toJson(analysisService.queryBatteryTaskRecentlyByAGV(agvId));
+        } else {
+            return gson.toJson(analysisService.queryBatteryTaskByAGVAndDay(agvId, date));
+        }
+    }
     @RequestMapping(value = "/sendTask", produces = MediaType.TEXT_PLAIN_VALUE)
     public String sendTask(@RequestParam("time") String time, @RequestParam("agv") String agv,
                            @RequestParam("start") String start, @RequestParam("notification") String notification,
                            @RequestParam("mode") String mode){
-        return taskService.insertTaskAndAddTask(time, agv, start, notification, mode) ? "OK" : "FAIL";
+        return taskService.insertTaskAndAddTask(time, agv, start, notification, mode);
+    }
+
+    @RequestMapping(value = "/goStandbyTask", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String goStandbyTask(@RequestParam("mode") int mode){
+        return taskService.goStandbyTask(mode);
     }
 
     @RequestMapping(value = "/cancelTask", produces = MediaType.TEXT_PLAIN_VALUE)

@@ -61,6 +61,22 @@ public class TaskQueue {
         return iEquals;
     }
 
+    public boolean iEqualsBatteryStandbyStation(){
+        int place = Integer.parseInt(agvManager.getAgvStatus(1).getPlace() == null ? "-1" : agvManager.getAgvStatus(1).getPlace());
+        if (place == -1) return false;
+
+        List<String> standbyTags = new ArrayList<>();
+        standbyTags.add("1054");
+        boolean iEquals = false;
+
+        for (String standbyTag : standbyTags) {
+            if (Integer.parseInt(standbyTag) == place
+                    || Integer.parseInt(standbyTag)-500 == place)
+                iEquals = true;
+        }
+        return iEquals;
+    }
+
     public boolean addTaskToQueue(QTask task) {
         if(taskQueue.size() >= 5)
             return false;
@@ -86,7 +102,8 @@ public class TaskQueue {
         }
         for(int i=s;i<=x;i++){
             int stationStatus = stationManager.getStationStatus(i).getStatus();
-            if(stationStatus == 0 || stationStatus == 1)
+//            if(stationStatus == 0 || stationStatus == 1)  // 有無棧板都可當終點站
+            if(stationStatus == 0)  // 20240726 修改為只有為空才可當終點站
                 return i;
         }
         return null;

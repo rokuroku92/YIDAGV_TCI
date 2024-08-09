@@ -5,7 +5,9 @@ import com.yid.agv.model.Analysis;
 import java.util.List;
 import java.util.Map;
 
+import com.yid.agv.model.BatteryTask;
 import com.yid.agv.repository.AnalysisDao;
+import com.yid.agv.repository.BatteryTaskDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,8 @@ public class AnalysisService {
 
     @Autowired
     private AnalysisDao analysisDao;
+    @Autowired
+    private BatteryTaskDao batteryTaskDao;
 
     public List<Analysis> queryAnalysisByAGV(Integer agvId){
         return analysisDao.queryAnalysisByAGV(agvId);
@@ -33,4 +37,12 @@ public class AnalysisService {
         return analysisDao.getAnalysisYearsAndMonths();
     }
 
+    public List<BatteryTask> queryBatteryTaskRecentlyByAGV(Integer agvId){
+        return batteryTaskDao.queryBatteryTaskRecentlyByAGV(agvId);
+    }
+
+    // date format: YYYYMMDD
+    public List<BatteryTask> queryBatteryTaskByAGVAndDay(Integer agvId, String date){
+        return batteryTaskDao.queryBatteryTaskByAGVAndDay(agvId, date);
+    }
 }

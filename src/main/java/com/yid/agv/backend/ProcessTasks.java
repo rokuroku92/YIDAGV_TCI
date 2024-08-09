@@ -67,10 +67,10 @@ public class ProcessTasks {
 
     @Scheduled(fixedRate = 5000)
     public void dispatchTasks() {
-        if(isRetrying || InstantStatus.iTask)return;
+        if(isRetrying || InstantStatus.iTask) return;
         if(agvManager.getAgvStatus(1).getStatus() != 2) return;  // AGV未連線則無法派遣
 
-        if (InstantStatus.getAgvLowBattery()[0] && !taskQueue.iEqualsStandbyStation()){
+        if (InstantStatus.getAgvLowBattery()[0] && !taskQueue.iEqualsBatteryStandbyStation()){
             InstantStatus.iStandbyTask = true;
             goStandbyTaskByAgvId(notificationDao, taskDao, 1, agvManager.getAgvStatus(1), true);
         } else if (taskQueue.iDispatch()) {
@@ -79,7 +79,7 @@ public class ProcessTasks {
             log.info("Process dispatch...");
             log.info(agvManager.getAgvStatus(1).getPlace());
             String result = dispatchTaskToAGV(notificationDao, goTask, agvManager.getAgvStatus(1).getPlace(), 1);
-            if(Objects.requireNonNull(result).equals("OK")){
+            if (Objects.requireNonNull(result).equals("OK")) {
                 taskQueue.updateTaskStatus(taskQueue.getNowTaskNumber(), 1);
                 InstantStatus.startStation = goTask.getStartStationId();
                 InstantStatus.terminalStation = goTask.getTerminalStationId();

@@ -4,32 +4,35 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<title>元創智動AGV效益分析</title>
 		<script>
-            var baseUrl;
-            if (window.location.href.startsWith('http://127.0.0.1:5500')) {
-                // Live Server 环境
-                console.log('Running on Live Server');
-                baseUrl = "http://localhost:8080/YIDAGV";
-                var baseHref = document.createElement("base");
-                baseHref.href = "http://127.0.0.1:5500/static/";
-                document.head.appendChild(baseHref);
-
-				document.addEventListener("DOMContentLoaded", function() {
-					var _a_ = document.querySelectorAll("a");
-					_a_.forEach(a => {
-						var parts = a.href.split("/");
-						var newHref = parts[parts.length-1] !== "" ? parts[parts.length-1]+".html" : "agv.html";
-						a.href = newHref;
-					});
+			var baseUrl;
+			if (window.location.port !== "8080") {
+			  // Live Server 环境
+			  console.log("Running on Live Server");
+			  baseUrl = "http://" + window.location.hostname + ":8080/YIDAGV";
+			  var baseHref = document.createElement("base");
+			  baseHref.href = window.location.origin + "/";
+			  document.head.appendChild(baseHref);
+	  
+			  document.addEventListener("DOMContentLoaded", function () {
+				var _a_ = document.querySelectorAll("a");
+				_a_.forEach((a) => {
+				  var parts = a.href.split("/");
+				  var newHref =
+					parts[parts.length - 1] !== ""
+					  ? parts[parts.length - 1] + ".html"
+					  : "agv.html";
+				  a.href = newHref;
 				});
-            } else {
-                // Spring Boot 环境 window.location.href.startsWith('http://localhost:8080/YIDAGV')
-                console.log('Running on Spring Boot');
-                baseUrl = window.location.origin + "/YIDAGV";
-                var baseHref = document.createElement("base");
-                baseHref.href = "/YIDAGV/";
-                document.head.appendChild(baseHref);
-            }
-        </script>
+			  });
+			} else {
+			  // Spring Boot 环境 window.location.href.startsWith('http://localhost:8080/YIDAGV')
+			  console.log("Running on Spring Boot");
+			  baseUrl = window.location.origin + "/YIDAGV";
+			  var baseHref = document.createElement("base");
+			  baseHref.href = "/YIDAGV/";
+			  document.head.appendChild(baseHref);
+			}
+		  </script>
 		<link rel="icon" type="image/ico" href="image/favicon.ico">
 		<!-- Bootstrap core CSS -->
 		<link href="css/bootstrap.min.css" rel="stylesheet">
@@ -162,6 +165,85 @@
 							</tbody>
 						</table>
 					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col" style="display: flex;align-items: center;">
+          <p style="font-size: 1.2em;margin: 0px;">查看電量與任務(預設倒數30筆)</p>
+					<button
+            type="button"
+            class="btn btn-secondary"
+            style="margin-left: 1em"
+            data-bs-toggle="modal"
+            data-bs-target="#changeDate"
+          >
+            選擇日期
+          </button>
+          <!-- changeDate Modal -->
+          <div
+            class="modal fade"
+            id="changeDate"
+            data-bs-backdrop="static"
+            data-bs-keyboard="false"
+            tabindex="-1"
+            aria-labelledby="changeDateLabel"
+            aria-hidden="true"
+          >
+            <div
+              class="modal-dialog modal-dialog-scrollable modal-dialog-centered"
+            >
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="changeDateLabel">選擇日期</h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row">
+                    <div
+                      class="col-3"
+                      style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <label for="selectDate">欲查詢日期</label>
+                    </div>
+                    <div class="col-9">
+                      <input id="selectDate" class="form-control" type="date" />
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    取消
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-bs-dismiss="modal"
+                    onclick="refreshBatteryTaskData()"
+                  >
+                    確定
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row" style=" justify-content: center">
+				<div class="col-10">
+					<canvas class="my-4 w-100" id="batteryTaskChart" width="900" height="380"></canvas>
 				</div>
 			</div>
 		</div>

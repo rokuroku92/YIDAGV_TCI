@@ -6,8 +6,17 @@ const stationsDict = {};
 const agvStatusDict = {};
 var nowLanguage=localStorage.getItem("nowLanguage");
 var lastTasks;
+var hideGoStandbyDivClickCnt = 0;
 
-window.onload = async function(){
+document.addEventListener("DOMContentLoaded", async function () {
+    const hideGoStandbyDiv = document.getElementById("hideGoStandby");
+    hideGoStandbyDiv.addEventListener("click", () => {
+        if (++hideGoStandbyDivClickCnt >= 5) {
+            $('#goStandbyModal').modal('show');
+            hideGoStandbyDivClickCnt=0;
+        }
+    });
+
     if(nowLanguage == 'thai') {
         document.getElementById('lanThai').click();
     }
@@ -34,7 +43,7 @@ window.onload = async function(){
     setInterval(getNotification, 1000);
     setInterval(getIAlarm, 1000);
     setInterval(getAnalysis, 60000);
-};
+});
 
 function setStationsDict() {
     return new Promise((resolve, reject) => {
@@ -664,14 +673,15 @@ function subm(){
     var xhr = new XMLHttpRequest();
     xhr.open('GET', baseUrl+"/api/sendTask?time="+nowTime+"&agv=1&start="+document.getElementById('ststation').value+"&notification="+document.getElementById('notificationstation').value+"&mode=0", true);
     xhr.send();
-    xhr.onload = function(){
+    xhr.onload = function() {
         if(xhr.status == 200){
             var data = this.responseText;
-            if(data == 'OK'){
-                alert("Task sent successfully.");
-            }else if(data == 'FAIL'){
-                alert("Failed to send task.");
-            }
+            alert(data);
+            // if(data == 'OK'){
+            //     alert("Task sent successfully.");
+            // }else if(data == 'FAIL'){
+            //     alert("Failed to send task.");
+            // }
         }
     };
     cn();
@@ -696,7 +706,7 @@ function countRate(data) {
     }
     document.getElementById("work_sum").value = String(Math.floor(work_sum/60))+"hr";
     document.getElementById("open_sum").value = String(Math.floor(open_sum/60))+"hr";
-    document.getElementById("rate").value = String(((work_sum/open_sum)*100).toFixed(1))+"%";
+    document.getElementById("rate").value = String(((work_sum/(1440*14))*100).toFixed(1))+"%";
     document.getElementById("task_sum").value = task_sum;
 }
 
@@ -811,4 +821,16 @@ function changeLanguage(lan) {
         setNotification(notificationstation);
     }
     lastTasks = [];
+}
+
+function goStandbyTask(mode){
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', baseUrl+`/api/goStandbyTask?mode=${mode}`, true);
+    xhr.send();
+    xhr.onload = function() {
+        if(xhr.status == 200){
+            var data = this.responseText;
+            alert(data);
+        }
+    };
 }

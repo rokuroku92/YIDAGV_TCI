@@ -23,6 +23,16 @@ public class AgvStatus {
     private String place;
     private int battery;
     private int signal;
+    private int completedTaskCount;
+
+    public int getCompletedTaskCount() {
+        return completedTaskCount;
+    }
+
+    public void setCompletedTaskCount(int completedTaskCount) {
+        this.completedTaskCount = completedTaskCount;
+    }
+
 
     public int getStatus() {
         return status;

@@ -1,10 +1,10 @@
 package com.yid.agv.backend;
 
-import com.yid.agv.model.Analysis;
-import com.yid.agv.model.AnalysisId;
-import com.yid.agv.model.YearMonthDay;
+import com.yid.agv.backend.datastorage.AGVManager;
+import com.yid.agv.model.*;
 import com.yid.agv.repository.AGVIdDao;
 import com.yid.agv.repository.AnalysisDao;
+import com.yid.agv.repository.BatteryTaskDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -18,6 +18,10 @@ public class CountUtilizationRate {
     private AnalysisDao analysisDao;
     @Autowired
     private AGVIdDao agvIdDao;
+    @Autowired
+    private BatteryTaskDao batteryTaskDao;
+    @Autowired
+    private AGVManager agvManager;
     private String lastDate;
     private List<AnalysisId> analysisIds;
 
@@ -49,6 +53,7 @@ public class CountUtilizationRate {
         }
 
         for(int i=0;i<agvIdDao.queryAGVList().size();i++){
+            AgvStatus agvStatus = agvManager.getAgvStatus(i+1);
             // 執行相應的處理邏輯，如更新資料庫、記錄日誌等
             Analysis analysis = analysisDao.queryAnalysisByAnalysisId(analysisIds.get(i).getAnalysisId());
             if (isPoweredOn[i]) {
@@ -57,11 +62,24 @@ public class CountUtilizationRate {
 //                System.out.println("BootMinute++");
                 if (isWorking[i]) {
                     // AGV工作處理邏輯
-                    analysisDao.updateWorkingMinute(analysis.getWorkingMinute()+1, analysisIds.get(i).getAnalysisId());
-//                    System.out.println("WorkingMinute++");
+                    // 緊急停止、偏離軌道、馬達驅動器異常不算工作時間
+                    if (agvStatus.getStatus() != 5 && agvStatus.getStatus() != 6 && agvStatus.getStatus() != 9) {
+                        analysisDao.updateWorkingMinute(analysis.getWorkingMinute()+1, analysisIds.get(i).getAnalysisId());
+//                      System.out.println("WorkingMinute++");
+                    }
                 } // AGV停止工作則不處理業務邏輯
             } // AGV未開機則不處理業務邏輯
 
+        }
+
+    }
+
+    @Scheduled(fixedRate = 1080000) // 每30分鐘執行一次
+    public void checkAgvBatteryAndTask() {
+        for(int i=0;i<agvIdDao.queryAGVList().size();i++){
+            AgvStatus agvStatus = agvManager.getAgvStatus(i+1);
+            batteryTaskDao.insertNewBatteryTask(i+1, agvStatus.getBattery(), agvStatus.getCompletedTaskCount());
+            agvStatus.setCompletedTaskCount(0);
         }
 
     }
